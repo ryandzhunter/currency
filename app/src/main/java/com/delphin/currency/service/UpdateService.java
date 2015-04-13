@@ -88,8 +88,12 @@ public class UpdateService extends SpiceService {
         public void onRequestSuccess(GlobalCurrencies currencyCourse) {
             if (currencyCourse.isSuccess()) {
                 Double value = currencyCourse.getValue();
+                GlobalCurrencies lastCourse = getLast(course);
 
-                sendBroadcast(new Intent(ReceiverAction.ON_COURSE_UPDATE_ACTION).putExtra("course", course).putExtra("value", value));
+                sendBroadcast(new Intent(ReceiverAction.ON_COURSE_UPDATE_ACTION)
+                        .putExtra("course", course)
+                        .putExtra("value", value)
+                        .putExtra("prev", lastCourse != null ? lastCourse.getValue() : value));
 
                 save(currencyCourse, course);
             } else onRequestFailure(new SpiceException("Wrong response"));

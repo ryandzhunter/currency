@@ -11,11 +11,8 @@ import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.service.UpdateService_;
 
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.InstanceState;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
-
-import java.util.HashMap;
 
 @EActivity(R.layout.activity_currency)
 public class CurrencyActivity extends Activity {
@@ -24,9 +21,6 @@ public class CurrencyActivity extends Activity {
 
     @ViewById(R.id.eur_rub)
     protected TextView eurRub;
-
-    @InstanceState
-    protected HashMap<String, Double> previousCurrency;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,15 +32,12 @@ public class CurrencyActivity extends Activity {
     void onCourseUpdate(Intent intent) {
         String course = intent.getStringExtra("course");
         double value = intent.getDoubleExtra("value", 0D);
-
-        Double previousValue = popPrevious(course);
+        double previousValue = intent.getDoubleExtra("prev", value);
 
         String valueStr = String.format("%s (%s)", String.format("%.2f", value),
                 convertDiff(value, previousValue));
         setValue(valueStr, course);
         setColor(value, previousValue, course);
-
-        pushPrevious(course, value);
     }
 
     private String convertDiff(Double value, Double previousValue) {
@@ -56,37 +47,28 @@ public class CurrencyActivity extends Activity {
     }
 
     private void setValue(String value, String course) {
-        if (Courses.USD_RUB.equalsIgnoreCase(course)) {
-            usdRub.setText(value);
-        } else if (Courses.EUR_RUB.equalsIgnoreCase(course)) {
-            eurRub.setText(value);
-        }
+        TextView container = getCourseUiContainer(course);
+        if (container != null)
+            container.setText(value);
     }
 
     private void setColor(Double value, Double previous, String course) {
+        TextView container = getCourseUiContainer(course);
+        if (container != null)
+            container.setTextColor(getColor(value, previous));
+    }
+
+    private TextView getCourseUiContainer(String course) {
         if (Courses.USD_RUB.equalsIgnoreCase(course)) {
-            usdRub.setTextColor(getColor(value, previous));
+            return usdRub;
         } else if (Courses.EUR_RUB.equalsIgnoreCase(course)) {
-            eurRub.setTextColor(getColor(value, previous));
+            return eurRub;
         }
+        return null;
     }
 
     private int getColor(Double value, Double previous) {
         return getResources().getColor(previous != null ? previous < value ?
                 android.R.color.holo_red_light : android.R.color.holo_green_light : android.R.color.black);
-    }
-
-    private Double popPrevious(String course) {
-        if (previousCurrency != null) {
-            return previousCurrency.get(course);
-        }
-        return null;
-    }
-
-    private void pushPrevious(String course, Double value) {
-        if (previousCurrency == null) {
-            previousCurrency = new HashMap<>();
-        }
-        previousCurrency.put(course, value);
     }
 }
