@@ -48,16 +48,6 @@ public class CurrencyRetrofitRequest extends RetrofitSpiceRequest<GlobalCurrenci
                         return null;
                     }
                 })
-                .registerTypeAdapter(Date.class, new JsonDeserializer<Date>() {
-                    @Override
-                    public Date deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context) throws JsonParseException {
-                        String s = json.getAsString();
-                        if (!TextUtils.isEmpty(s)) {
-                            return new Date();
-                        }
-                        return null;
-                    }
-                })
                 .create();
 
         restAdapter = new RestAdapter.Builder()

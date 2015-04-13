@@ -4,9 +4,6 @@ import com.google.gson.annotations.SerializedName;
 
 import java.util.Date;
 
-/**
- * Created by darkdelphin on 12.04.2015.
- */
 public class GlobalCurrencies implements CurrencyCourse {
     public static final String SUCCESS = "Success";
 
