@@ -8,6 +8,7 @@ import android.widget.Toast;
 import com.delphin.currency.config.Courses;
 import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.model.GlobalCurrencies;
+import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
 import com.delphin.currency.storage.GlobalCurrencyRepository;
 import com.octo.android.robospice.persistence.DurationInMillis;
@@ -34,6 +35,9 @@ public class UpdateService extends SpiceService {
 
     @Bean
     protected GlobalCurrencyRepository globalCurrencyRepository;
+
+    @Bean
+    CurrencyNotificationManager currencyNotificationManager;
 
     @Override
     public void onCreate() {
@@ -94,6 +98,7 @@ public class UpdateService extends SpiceService {
                         .putExtra("course", course)
                         .putExtra("value", value)
                         .putExtra("prev", lastCourse != null ? lastCourse.getValue() : value));
+                currencyNotificationManager.updateNotification(Collections.singletonMap(course, String.valueOf(value)));
 
                 save(currencyCourse, course);
             } else onRequestFailure(new SpiceException("Wrong response"));

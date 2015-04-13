@@ -6,7 +6,6 @@ import org.androidannotations.annotations.App;
 import org.androidannotations.annotations.EBean;
 
 import de.greenrobot.dao.query.QueryBuilder;
-import de.greenrobot.dao.query.WhereCondition;
 import greendao.GlobalCourses;
 import greendao.GlobalCoursesDao;
 
@@ -25,7 +24,7 @@ public class GlobalCurrencyRepository {
 
     public GlobalCourses getLastInserted(String course) {
         QueryBuilder<GlobalCourses> builder = getGlobalCoursesDao().queryBuilder();
-        builder.where(new WhereCondition.PropertyCondition(GlobalCoursesDao.Properties.Course, course));
+        builder.where(GlobalCoursesDao.Properties.Course.eq(course));
         return builder.orderDesc(GlobalCoursesDao.Properties.Date).limit(1).unique();
     }
 }

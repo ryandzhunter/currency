@@ -71,4 +71,10 @@ public class CurrencyActivity extends Activity {
         return getResources().getColor(previous != null ? previous < value ?
                 android.R.color.holo_red_light : android.R.color.holo_green_light : android.R.color.black);
     }
+
+    @Override
+    protected void onDestroy() {
+        stopService(new Intent(this, UpdateService_.class));
+        super.onDestroy();
+    }
 }

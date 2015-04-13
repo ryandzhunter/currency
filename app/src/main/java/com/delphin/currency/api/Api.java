@@ -2,14 +2,12 @@ package com.delphin.currency.api;
 
 import com.delphin.currency.model.GlobalCurrencies;
 
-import java.util.Map;
-
 import retrofit.http.GET;
-import retrofit.http.QueryMap;
 
 public interface Api {
-    String URL = "http://globalcurrencies.xignite.com";
+    String URL = "http://zenrus.ru";
 
-    @GET(value = "/xGlobalCurrencies.json/GetRealTimeRate?_token=D0533439180E4203924E873B0FEF3A35")
-    GlobalCurrencies getCourses(@QueryMap Map<String, String> params);
+    @GET(value = "/js/build/currents.js")
+    //var current = [52.42,55.30,58.46]
+    GlobalCurrencies getCourses();
 }
