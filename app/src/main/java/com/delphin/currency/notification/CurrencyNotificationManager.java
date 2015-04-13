@@ -48,8 +48,8 @@ public class CurrencyNotificationManager {
 
     private RemoteViews getRemoteViews(GlobalCourses values) {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_notification);
-        remoteViews.setTextViewText(R.id.usd_rub, values.getUsd());
-        remoteViews.setTextViewText(R.id.eur_rub, values.getEur());
+        remoteViews.setTextViewText(R.id.usd_rub, String.valueOf(values.getUsd()));
+        remoteViews.setTextViewText(R.id.eur_rub, String.valueOf(values.getEur()));
         return remoteViews;
     }
 

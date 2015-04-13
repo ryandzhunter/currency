@@ -34,20 +34,22 @@ public class CurrencyActivity extends Activity {
         GlobalCourses course = (GlobalCourses) intent.getSerializableExtra("course");
         GlobalCourses previous = (GlobalCourses) intent.getSerializableExtra("prev");
 
-        String usdStr = String.format("%s (%s)", course.getUsd(), convertDiff(course.getUsd(), previous.getUsd()));
-        String eurStr = String.format("%s (%s)", course.getEur(), convertDiff(course.getEur(), previous.getEur()));
+        String usdStr = String.format("%s (%s)", String.format("%.2f", course.getUsd()),
+                convertDiff(course.getUsd(), previous != null ? previous.getUsd() : course.getUsd()));
+        String eurStr = String.format("%s (%s)", String.format("%.2f", course.getEur()),
+                convertDiff(course.getEur(), previous != null ? previous.getEur() : course.getEur()));
 
         setValue(usdRub, usdStr);
         setValue(eurRub, eurStr);
 
-        setColor(usdRub, course.getUsd(), previous.getUsd());
-        setColor(eurRub, course.getEur(), previous.getEur());
+        setColor(usdRub, course.getUsd(), previous != null ? previous.getUsd() : course.getUsd());
+        setColor(eurRub, course.getEur(), previous != null ? previous.getEur() : course.getEur());
     }
 
-    private String convertDiff(String value, String previousValue) {
+    private String convertDiff(Double value, Double previousValue) {
         if (previousValue == null) return "0.0";
 
-        double diff = Double.parseDouble(value) - Double.parseDouble(previousValue);
+        double diff = value - previousValue;
         return (diff < 0 ? "" : "+") + String.format("%.2f", diff);
     }
 
@@ -55,8 +57,8 @@ public class CurrencyActivity extends Activity {
         container.setText(course);
     }
 
-    private void setColor(TextView container, String course, String previous) {
-        container.setTextColor(getColor(Double.parseDouble(course), Double.parseDouble(previous)));
+    private void setColor(TextView container, Double course, Double previous) {
+        container.setTextColor(getColor(course, previous));
     }
 
     private int getColor(Double value, Double previous) {

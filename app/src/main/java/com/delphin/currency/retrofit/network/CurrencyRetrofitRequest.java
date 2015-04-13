@@ -38,11 +38,13 @@ public class CurrencyRetrofitRequest extends RetrofitSpiceRequest<GlobalCourses,
                                 String usd = matcher.group(1);
                                 String eur = matcher.group(2);
 
-                                courses.setUsd(usd);
-                                courses.setEur(eur);
+                                courses.setUsd(Double.parseDouble(usd));
+                                courses.setEur(Double.parseDouble(eur));
                                 courses.setDate(new Date());
                             }
-                        } catch (IOException ignored) {}
+                        } catch (IOException | NumberFormatException ignored) {
+
+                        }
                         return courses;
                     }
 

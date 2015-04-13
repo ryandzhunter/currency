@@ -11,8 +11,8 @@ public class MyDaoGenerator {
 
         Entity entity = schema.addEntity("GlobalCourses");
         entity.addIdProperty();
-        entity.addStringProperty("usd");
-        entity.addStringProperty("eur");
+        entity.addDoubleProperty("usd");
+        entity.addDoubleProperty("eur");
         entity.addDateProperty("date");
         entity.implementsSerializable();
 
