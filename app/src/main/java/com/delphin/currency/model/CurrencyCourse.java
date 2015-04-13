@@ -5,4 +5,6 @@ package com.delphin.currency.model;
  */
 public interface CurrencyCourse {
     Double getValue();
+
+    boolean isSuccess();
 }
