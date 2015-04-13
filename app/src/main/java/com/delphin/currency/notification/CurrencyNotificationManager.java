@@ -8,7 +8,9 @@ import android.widget.RemoteViews;
 
 import com.delphin.currency.R;
 import com.delphin.currency.config.Config;
+import com.delphin.currency.helper.ColorHelper;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.SystemService;
@@ -27,16 +29,19 @@ public class CurrencyNotificationManager {
     @SystemService
     protected NotificationManager notificationManager;
 
+    @Bean
+    protected ColorHelper colorHelper;
+
     public CurrencyNotificationManager() {
     }
 
-    public void createInfoNotification(GlobalCourses values) {
-        NotificationCompat.Builder builder = createNotificationBuilder(values);
+    public void createInfoNotification(GlobalCourses values, GlobalCourses previous) {
+        NotificationCompat.Builder builder = createNotificationBuilder(values, previous);
         notificationManager.notify(Config.NOTIFICATION_ID, builder.build());
     }
 
-    protected NotificationCompat.Builder createNotificationBuilder(GlobalCourses values) {
-        RemoteViews remoteViews = getRemoteViews(values);
+    protected NotificationCompat.Builder createNotificationBuilder(GlobalCourses values, GlobalCourses previous) {
+        RemoteViews remoteViews = getRemoteViews(values, previous);
 
         return new NotificationCompat.Builder(context)
                 .setSmallIcon(icon()) //иконка уведомления
@@ -46,15 +51,17 @@ public class CurrencyNotificationManager {
                 .setContent(remoteViews);
     }
 
-    private RemoteViews getRemoteViews(GlobalCourses values) {
+    private RemoteViews getRemoteViews(GlobalCourses values, GlobalCourses previous) {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_notification);
         remoteViews.setTextViewText(R.id.usd_rub, String.valueOf(values.getUsd()));
+        remoteViews.setTextColor(R.id.usd_rub, colorHelper.getColor(values.getUsd(), previous.getUsd()));
         remoteViews.setTextViewText(R.id.eur_rub, String.valueOf(values.getEur()));
+        remoteViews.setTextColor(R.id.eur_rub, colorHelper.getColor(values.getEur(), previous.getEur()));
         return remoteViews;
     }
 
-    public void updateNotification(GlobalCourses values) {
-        createInfoNotification(values);
+    public void updateNotification(GlobalCourses values, GlobalCourses previous) {
+        createInfoNotification(values, previous);
     }
 
     protected int icon() {

@@ -83,7 +83,7 @@ public class UpdateService extends SpiceService {
             sendBroadcast(new Intent(ReceiverAction.ON_COURSE_UPDATE_ACTION)
                     .putExtra("course", currencyCourse)
                     .putExtra("prev", lastCourse));
-            currencyNotificationManager.updateNotification(currencyCourse);
+            currencyNotificationManager.updateNotification(currencyCourse, lastCourse);
 
             save(currencyCourse);
         }

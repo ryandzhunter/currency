@@ -7,8 +7,10 @@ import android.widget.TextView;
 
 import com.delphin.currency.R;
 import com.delphin.currency.config.ReceiverAction;
+import com.delphin.currency.helper.ColorHelper;
 import com.delphin.currency.service.UpdateService_;
 
+import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
@@ -22,6 +24,9 @@ public class CurrencyActivity extends Activity {
 
     @ViewById(R.id.eur_rub)
     protected TextView eurRub;
+
+    @Bean
+    protected ColorHelper colorHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +63,7 @@ public class CurrencyActivity extends Activity {
     }
 
     private void setColor(TextView container, Double course, Double previous) {
-        container.setTextColor(getColor(course, previous));
-    }
-
-    private int getColor(Double value, Double previous) {
-        return getResources().getColor(previous != null ? previous < value ?
-                android.R.color.holo_red_light : android.R.color.holo_green_light : android.R.color.black);
+        container.setTextColor(colorHelper.getColor(course, previous));
     }
 
     @Override
