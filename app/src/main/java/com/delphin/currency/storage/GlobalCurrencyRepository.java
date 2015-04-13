@@ -22,9 +22,8 @@ public class GlobalCurrencyRepository {
         return application.daoSession.getGlobalCoursesDao();
     }
 
-    public GlobalCourses getLastInserted(String course) {
+    public GlobalCourses getLastInserted() {
         QueryBuilder<GlobalCourses> builder = getGlobalCoursesDao().queryBuilder();
-        builder.where(GlobalCoursesDao.Properties.Course.eq(course));
         return builder.orderDesc(GlobalCoursesDao.Properties.Date).limit(1).unique();
     }
 }

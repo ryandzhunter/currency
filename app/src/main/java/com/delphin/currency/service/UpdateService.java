@@ -5,9 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.widget.Toast;
 
-import com.delphin.currency.config.Courses;
 import com.delphin.currency.config.ReceiverAction;
-import com.delphin.currency.model.GlobalCurrencies;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
 import com.delphin.currency.storage.GlobalCurrencyRepository;
@@ -17,9 +15,8 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
-import org.apache.commons.lang3.time.DateUtils;
 
-import java.util.Collections;
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -61,77 +58,49 @@ public class UpdateService extends SpiceService {
     };
 
     private void updateCourses() {
-        Message msg = new Message();
-        msg.obj = Courses.USD_RUB;
-        mHandler.dispatchMessage(msg);
-        msg.obj = Courses.EUR_RUB;
-        mHandler.dispatchMessage(msg);
+        mHandler.dispatchMessage(new Message());
     }
 
-    private void getCourse(String course) {
-        spiceManager.execute(new CurrencyRetrofitRequest(Collections.singletonMap("symbol", course)),
-                course, EXECUTION_DELAY, new CurrencyRequestListener(course));
+    private void getCourse() {
+        spiceManager.execute(new CurrencyRetrofitRequest(),
+                new Date().toString(), EXECUTION_DELAY, new CurrencyRequestListener());
     }
 
-    private class CurrencyRequestListener implements RequestListener<GlobalCurrencies> {
-        protected String course;
-
-        private CurrencyRequestListener(String course) {
-            this.course = course;
-        }
+    private class CurrencyRequestListener implements RequestListener<GlobalCourses> {
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
-            GlobalCurrencies lastCourse = getLast(course);
+            GlobalCourses lastCourse = getLast();
             if (lastCourse != null)
                 onRequestSuccess(lastCourse);
             Toast.makeText(UpdateService.this, spiceException.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         @Override
-        public void onRequestSuccess(GlobalCurrencies currencyCourse) {
-            if (currencyCourse.isSuccess()) {
-                Double value = currencyCourse.getValue();
-                GlobalCurrencies lastCourse = getLast(course);
+        public void onRequestSuccess(GlobalCourses currencyCourse) {
+            GlobalCourses lastCourse = getLast();
 
-                sendBroadcast(new Intent(ReceiverAction.ON_COURSE_UPDATE_ACTION)
-                        .putExtra("course", course)
-                        .putExtra("value", value)
-                        .putExtra("prev", lastCourse != null ? lastCourse.getValue() : value));
-                currencyNotificationManager.updateNotification(Collections.singletonMap(course, String.valueOf(value)));
+            sendBroadcast(new Intent(ReceiverAction.ON_COURSE_UPDATE_ACTION)
+                    .putExtra("course", currencyCourse)
+                    .putExtra("prev", lastCourse));
+            currencyNotificationManager.updateNotification(currencyCourse);
 
-                save(currencyCourse, course);
-            } else onRequestFailure(new SpiceException("Wrong response"));
+            save(currencyCourse);
         }
     }
 
-    private void save(GlobalCurrencies currencyCourse, String course) {
-        GlobalCourses globalCourses = new GlobalCourses();
-        globalCourses.setBaseCurrency(currencyCourse.baseCurrency);
-        globalCourses.setQuoteCurrency(currencyCourse.quoteCurrency);
-        globalCourses.setValue(currencyCourse.getValue());
-        if (currencyCourse.date != null && currencyCourse.time != null)
-            globalCourses.setDate(DateUtils.addMilliseconds(currencyCourse.date, (int) currencyCourse.time.getTime()));
-        globalCourses.setCourse(course);
-
-        globalCurrencyRepository.save(globalCourses);
+    private void save(GlobalCourses currencyCourse) {
+        globalCurrencyRepository.save(currencyCourse);
     }
 
-    private GlobalCurrencies getLast(String course) {
-        GlobalCourses courses = globalCurrencyRepository.getLastInserted(course);
-        if (courses == null) return null;
-
-        GlobalCurrencies globalCurrencies = new GlobalCurrencies();
-        globalCurrencies.setValue(courses.getValue());
-        globalCurrencies.outcome = GlobalCurrencies.SUCCESS;
-        return globalCurrencies;
+    private GlobalCourses getLast() {
+        return globalCurrencyRepository.getLastInserted();
     }
 
     class CourseHandler extends Handler {
         @Override
         public void handleMessage(Message msg) {
-            String request = (String) msg.obj;
-            getCourse(request);
+            getCourse();
         }
 
     }

@@ -11,11 +11,10 @@ public class MyDaoGenerator {
 
         Entity entity = schema.addEntity("GlobalCourses");
         entity.addIdProperty();
-        entity.addStringProperty("baseCurrency");
-        entity.addStringProperty("quoteCurrency");
-        entity.addDoubleProperty("value");
+        entity.addStringProperty("usd");
+        entity.addStringProperty("eur");
         entity.addDateProperty("date");
-        entity.addStringProperty("course");
+        entity.implementsSerializable();
 
         new DaoGenerator().generateAll(schema, args[0]);
     }

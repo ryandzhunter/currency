@@ -6,13 +6,14 @@ import android.os.Bundle;
 import android.widget.TextView;
 
 import com.delphin.currency.R;
-import com.delphin.currency.config.Courses;
 import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.service.UpdateService_;
 
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
+
+import greendao.GlobalCourses;
 
 @EActivity(R.layout.activity_currency)
 public class CurrencyActivity extends Activity {
@@ -30,41 +31,32 @@ public class CurrencyActivity extends Activity {
 
     @Receiver(actions = ReceiverAction.ON_COURSE_UPDATE_ACTION)
     void onCourseUpdate(Intent intent) {
-        String course = intent.getStringExtra("course");
-        double value = intent.getDoubleExtra("value", 0D);
-        double previousValue = intent.getDoubleExtra("prev", value);
+        GlobalCourses course = (GlobalCourses) intent.getSerializableExtra("course");
+        GlobalCourses previous = (GlobalCourses) intent.getSerializableExtra("prev");
 
-        String valueStr = String.format("%s (%s)", String.format("%.2f", value),
-                convertDiff(value, previousValue));
-        setValue(valueStr, course);
-        setColor(value, previousValue, course);
+        String usdStr = String.format("%s (%s)", course.getUsd(), convertDiff(course.getUsd(), previous.getUsd()));
+        String eurStr = String.format("%s (%s)", course.getEur(), convertDiff(course.getEur(), previous.getEur()));
+
+        setValue(usdRub, usdStr);
+        setValue(eurRub, eurStr);
+
+        setColor(usdRub, course.getUsd(), previous.getUsd());
+        setColor(eurRub, course.getEur(), previous.getEur());
     }
 
-    private String convertDiff(Double value, Double previousValue) {
+    private String convertDiff(String value, String previousValue) {
         if (previousValue == null) return "0.0";
-        double diff = value - previousValue;
-        return (diff < 0 ? "" : "+") + String.format("%.4f", diff);
+
+        double diff = Double.parseDouble(value) - Double.parseDouble(previousValue);
+        return (diff < 0 ? "" : "+") + String.format("%.2f", diff);
     }
 
-    private void setValue(String value, String course) {
-        TextView container = getCourseUiContainer(course);
-        if (container != null)
-            container.setText(value);
+    private void setValue(TextView container, String course) {
+        container.setText(course);
     }
 
-    private void setColor(Double value, Double previous, String course) {
-        TextView container = getCourseUiContainer(course);
-        if (container != null)
-            container.setTextColor(getColor(value, previous));
-    }
-
-    private TextView getCourseUiContainer(String course) {
-        if (Courses.USD_RUB.equalsIgnoreCase(course)) {
-            return usdRub;
-        } else if (Courses.EUR_RUB.equalsIgnoreCase(course)) {
-            return eurRub;
-        }
-        return null;
+    private void setColor(TextView container, String course, String previous) {
+        container.setTextColor(getColor(Double.parseDouble(course), Double.parseDouble(previous)));
     }
 
     private int getColor(Double value, Double previous) {

@@ -8,14 +8,12 @@ import android.widget.RemoteViews;
 
 import com.delphin.currency.R;
 import com.delphin.currency.config.Config;
-import com.delphin.currency.config.Courses;
 
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 import org.androidannotations.annotations.SystemService;
 
-import java.util.HashMap;
-import java.util.Map;
+import greendao.GlobalCourses;
 
 @EBean
 public class CurrencyNotificationManager {
@@ -29,18 +27,15 @@ public class CurrencyNotificationManager {
     @SystemService
     protected NotificationManager notificationManager;
 
-    public Map<String, String> values = new HashMap<>();
-
     public CurrencyNotificationManager() {
     }
 
-    public void createInfoNotification(Map<String, String> values) {
-        this.values.putAll(values);
-        NotificationCompat.Builder builder = createNotificationBuilder(this.values);
+    public void createInfoNotification(GlobalCourses values) {
+        NotificationCompat.Builder builder = createNotificationBuilder(values);
         notificationManager.notify(Config.NOTIFICATION_ID, builder.build());
     }
 
-    protected NotificationCompat.Builder createNotificationBuilder(Map<String, String> values) {
+    protected NotificationCompat.Builder createNotificationBuilder(GlobalCourses values) {
         RemoteViews remoteViews = getRemoteViews(values);
 
         return new NotificationCompat.Builder(context)
@@ -51,24 +46,14 @@ public class CurrencyNotificationManager {
                 .setContent(remoteViews);
     }
 
-    private RemoteViews getRemoteViews(Map<String, String> values) {
+    private RemoteViews getRemoteViews(GlobalCourses values) {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_notification);
-        for (Map.Entry<String, String> entry : values.entrySet()) {
-            remoteViews.setTextViewText(getCourseContainer(entry.getKey()), entry.getValue());
-        }
+        remoteViews.setTextViewText(R.id.usd_rub, values.getUsd());
+        remoteViews.setTextViewText(R.id.eur_rub, values.getEur());
         return remoteViews;
     }
 
-    private int getCourseContainer(String course) {
-        if (Courses.USD_RUB.equalsIgnoreCase(course)) {
-            return R.id.usd_rub;
-        } else if (Courses.EUR_RUB.equalsIgnoreCase(course)) {
-            return R.id.eur_rub;
-        }
-        return 0;
-    }
-
-    public void updateNotification(Map<String, String> values) {
+    public void updateNotification(GlobalCourses values) {
         createInfoNotification(values);
     }
 

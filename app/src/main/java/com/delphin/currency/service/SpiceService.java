@@ -7,7 +7,7 @@ import android.os.IBinder;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitService_;
 import com.octo.android.robospice.SpiceManager;
 
-public class SpiceService extends Service {
+public abstract class SpiceService extends Service {
     @Override
     public IBinder onBind(Intent intent) {
         return null;
