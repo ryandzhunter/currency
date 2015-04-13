@@ -2,6 +2,8 @@ package com.delphin.currency.model;
 
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Date;
+
 /**
  * Created by darkdelphin on 12.04.2015.
  */
@@ -37,9 +39,19 @@ public class GlobalCurrencies implements CurrencyCourse {
     @SerializedName("Mid")
     public Double mid;
 
+    @SerializedName("Date")
+    public Date date;
+    @SerializedName("Time")
+    public Date time;
+
     @Override
     public Double getValue() {
         return mid;
+    }
+
+    @Override
+    public void setValue(Double value) {
+        this.mid = value;
     }
 
     @Override

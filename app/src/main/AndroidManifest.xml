@@ -4,7 +4,8 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 
     <application android:allowBackup="true" android:label="@string/app_name"
-        android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme">
+        android:icon="@mipmap/ic_launcher" android:theme="@style/AppTheme"
+        android:name=".CurrencyApplication_">
         <activity
             android:name=".ui.CurrencyActivity_"
             android:windowSoftInputMode="stateAlwaysHidden">
@@ -15,6 +16,7 @@
         </activity>
 
         <service android:name=".retrofit.network.CurrencyRetrofitService_"/>
+        <service android:name=".service.UpdateService_"/>
     </application>
 
 </manifest>

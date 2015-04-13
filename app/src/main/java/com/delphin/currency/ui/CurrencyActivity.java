@@ -1,33 +1,24 @@
 package com.delphin.currency.ui;
 
-import android.os.Handler;
-import android.os.Message;
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.delphin.currency.R;
 import com.delphin.currency.config.Courses;
-import com.delphin.currency.model.GlobalCurrencies;
-import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
-import com.octo.android.robospice.persistence.DurationInMillis;
-import com.octo.android.robospice.persistence.exception.SpiceException;
-import com.octo.android.robospice.request.listener.RequestListener;
+import com.delphin.currency.config.ReceiverAction;
+import com.delphin.currency.service.UpdateService_;
 
-import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.InstanceState;
+import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Timer;
-import java.util.TimerTask;
 
 @EActivity(R.layout.activity_currency)
-public class CurrencyActivity extends SpiceActivity {
-    public static final long EXECUTION_DELAY = 10 * DurationInMillis.ONE_SECOND;
-    public static final long EXECUTION_PERIOD = 20 * DurationInMillis.ONE_SECOND;
-
+public class CurrencyActivity extends Activity {
     @ViewById(R.id.usd_rub)
     protected TextView usdRub;
 
@@ -37,89 +28,52 @@ public class CurrencyActivity extends SpiceActivity {
     @InstanceState
     protected HashMap<String, Double> previousCurrency;
 
-    private Timer timer;
-
-    @AfterViews
-    void afterViews() {
-        timer = new Timer();
-        timer.schedule(executionTask, 0L, EXECUTION_PERIOD);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        startService(new Intent(this, UpdateService_.class));
     }
 
-    private void getCourse(String course) {
-        spiceManager.execute(new CurrencyRetrofitRequest(Collections.singletonMap("symbol", course)),
-                course, EXECUTION_DELAY, new CurrencyRequestListener(course));
+    @Receiver(actions = ReceiverAction.ON_COURSE_UPDATE_ACTION)
+    void onCourseUpdate(Intent intent) {
+        String course = intent.getStringExtra("course");
+        double value = intent.getDoubleExtra("value", 0D);
+
+        Double previousValue = popPrevious(course);
+
+        String valueStr = String.format("%s (%s)", String.format("%.2f", value),
+                convertDiff(value, previousValue));
+        setValue(valueStr, course);
+        setColor(value, previousValue, course);
+
+        pushPrevious(course, value);
     }
 
-    private class CurrencyRequestListener implements RequestListener<GlobalCurrencies> {
-        protected String course;
+    private String convertDiff(Double value, Double previousValue) {
+        if (previousValue == null) return "0.0";
+        double diff = value - previousValue;
+        return (diff < 0 ? "" : "+") + String.format("%.4f", diff);
+    }
 
-        private CurrencyRequestListener(String course) {
-            this.course = course;
-        }
-
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            Toast.makeText(CurrencyActivity.this, spiceException.getMessage(), Toast.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onRequestSuccess(GlobalCurrencies currencyCourse) {
-            if (currencyCourse.isSuccess()) {
-                Double value = currencyCourse.getValue();
-                Double previousValue = popPrevious(course);
-
-                String valueStr = String.format("%s (%s)", String.format("%.2f", value),
-                        convertDiff(value, previousValue));
-                setValue(valueStr);
-                setColor(value, previousValue);
-
-                pushPrevious(course, value);
-            } else onRequestFailure(new SpiceException("Wrong response"));
-        }
-
-        private String convertDiff(Double value, Double previousValue) {
-            if (previousValue == null) return "0.0";
-            double diff = value - previousValue;
-            return (diff < 0 ? "" : "+") + String.format("%.4f", diff);
-        }
-
-        private void setValue(String value) {
-            if (Courses.USD_RUB.equalsIgnoreCase(course)) {
-                usdRub.setText(value);
-            } else if (Courses.EUR_RUB.equalsIgnoreCase(course)) {
-                eurRub.setText(value);
-            }
-        }
-
-        private void setColor(Double value, Double previous) {
-            if (Courses.USD_RUB.equalsIgnoreCase(course)) {
-                usdRub.setTextColor(getColor(value, previous));
-            } else if (Courses.EUR_RUB.equalsIgnoreCase(course)) {
-                eurRub.setTextColor(getColor(value, previous));
-            }
-        }
-
-        private int getColor(Double value, Double previous) {
-            return getResources().getColor(previous != null ? previous < value ?
-                    android.R.color.holo_red_light : android.R.color.holo_green_light : android.R.color.black);
+    private void setValue(String value, String course) {
+        if (Courses.USD_RUB.equalsIgnoreCase(course)) {
+            usdRub.setText(value);
+        } else if (Courses.EUR_RUB.equalsIgnoreCase(course)) {
+            eurRub.setText(value);
         }
     }
 
-    private Handler mHandler = new CourseHandler();
-
-    private TimerTask executionTask = new TimerTask() {
-        @Override
-        public void run() {
-            updateCourses();
+    private void setColor(Double value, Double previous, String course) {
+        if (Courses.USD_RUB.equalsIgnoreCase(course)) {
+            usdRub.setTextColor(getColor(value, previous));
+        } else if (Courses.EUR_RUB.equalsIgnoreCase(course)) {
+            eurRub.setTextColor(getColor(value, previous));
         }
-    };
+    }
 
-    private void updateCourses() {
-        Message msg = new Message();
-        msg.obj = Courses.USD_RUB;
-        mHandler.dispatchMessage(msg);
-        msg.obj = Courses.EUR_RUB;
-        mHandler.dispatchMessage(msg);
+    private int getColor(Double value, Double previous) {
+        return getResources().getColor(previous != null ? previous < value ?
+                android.R.color.holo_red_light : android.R.color.holo_green_light : android.R.color.black);
     }
 
     private Double popPrevious(String course) {
@@ -134,20 +88,5 @@ public class CurrencyActivity extends SpiceActivity {
             previousCurrency = new HashMap<>();
         }
         previousCurrency.put(course, value);
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (timer != null)
-            timer.cancel();
-    }
-
-    class CourseHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            String request = (String) msg.obj;
-            getCourse(request);
-        }
     }
 }

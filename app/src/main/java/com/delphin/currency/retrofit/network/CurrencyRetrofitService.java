@@ -5,9 +5,6 @@ import com.octo.android.robospice.retrofit.RetrofitGsonSpiceService;
 
 import org.androidannotations.annotations.EService;
 
-/**
- * Created by darkdelphin on 12.04.2015.
- */
 @EService
 public class CurrencyRetrofitService extends RetrofitGsonSpiceService {
     @Override
