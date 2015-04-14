@@ -2,6 +2,7 @@ package com.delphin.currency.ui;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -42,14 +43,20 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     @Pref
     protected Storage_ storage;
 
+    protected Typeface roubleTypeface;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startService(new Intent(this, UpdateService_.class));
+        roubleTypeface = Typeface.createFromAsset(getAssets(), "rouble.otf");
     }
 
     @AfterViews
     void afterViews() {
+        usdRub.setTypeface(roubleTypeface);
+        eurRub.setTypeface(roubleTypeface);
+
         notificationVisibility.setChecked(storage.notificationVisibility().get());
         notificationVisibility.setOnCheckedChangeListener(this);
     }
@@ -59,16 +66,16 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         GlobalCourses course = (GlobalCourses) intent.getSerializableExtra("course");
         GlobalCourses previous = (GlobalCourses) intent.getSerializableExtra("prev");
 
-        String usdStr = String.format("%s (%s)", String.format("%.2f", course.getUsd()),
+        String usdStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getUsd())),
                 convertDiff(course.getUsd(), previous != null ? previous.getUsd() : course.getUsd()));
-        String eurStr = String.format("%s (%s)", String.format("%.2f", course.getEur()),
+        String eurStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getEur())),
                 convertDiff(course.getEur(), previous != null ? previous.getEur() : course.getEur()));
         String oilStr = String.format("%s (%s)", String.format("%.2f", course.getOil()),
                 convertDiff(course.getOil(), previous != null ? previous.getOil() : course.getOil()));
 
         setValue(usdRub, usdStr);
         setValue(eurRub, eurStr);
-        setValue(oil, oilStr);
+        setValue(oil, "$" + oilStr);
 
         setColor(usdRub, course.getUsd(), previous != null ? previous.getUsd() : course.getUsd());
         setColor(eurRub, course.getEur(), previous != null ? previous.getEur() : course.getEur());
@@ -84,6 +91,11 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
 
     private void setValue(TextView container, String course) {
         container.setText(course);
+    }
+
+    private String withRouble(String s) {
+        String pattern = "%sa";
+        return String.format(pattern, s);
     }
 
     private void setColor(TextView container, Double course, Double previous) {
