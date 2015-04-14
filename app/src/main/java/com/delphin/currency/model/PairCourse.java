@@ -1,8 +1,10 @@
 package com.delphin.currency.model;
 
+import java.io.Serializable;
+
 import greendao.GlobalCourses;
 
-public class PairCourse {
+public class PairCourse implements Serializable {
     public GlobalCourses current;
     public GlobalCourses previous;
 

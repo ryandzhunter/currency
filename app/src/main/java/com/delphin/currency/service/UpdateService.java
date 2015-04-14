@@ -8,6 +8,7 @@ import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
 import com.delphin.currency.storage.GlobalCurrencyRepository;
 import com.delphin.currency.storage.Storage_;
+import com.delphin.currency.widget.WidgetProvider;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
@@ -98,7 +99,9 @@ public class UpdateService extends SpiceService {
         private void show(GlobalCourses currencyCourse) {
             GlobalCourses lastCourse = getLast();
 
-            ottoBus.post(new PairCourse(currencyCourse, lastCourse));
+            PairCourse courses = new PairCourse(currencyCourse, lastCourse);
+            ottoBus.post(courses);
+            sendBroadcast(new Intent(WidgetProvider.CURRENCY_WIDGET_UPDATE_ACTION).putExtra("courses", courses));
 
             if (storage.notificationVisibility().get()) {
                 currencyNotificationManager.updateNotification(currencyCourse, lastCourse);

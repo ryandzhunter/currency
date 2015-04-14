@@ -4,7 +4,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.PowerManager;
 import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
@@ -25,9 +24,6 @@ public class CurrencyNotificationManager {
 
     @RootContext
     protected Context context;
-
-    @SystemService
-    protected PowerManager powerManager;
 
     @SystemService
     protected NotificationManager notificationManager;
