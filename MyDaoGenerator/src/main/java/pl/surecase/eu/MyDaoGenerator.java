@@ -13,6 +13,7 @@ public class MyDaoGenerator {
         entity.addIdProperty();
         entity.addDoubleProperty("usd");
         entity.addDoubleProperty("eur");
+        entity.addDoubleProperty("oil");
         entity.addDateProperty("date");
         entity.implementsSerializable();
 

@@ -1,8 +1,6 @@
 package com.delphin.currency.service;
 
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
 import android.widget.Toast;
 
 import com.delphin.currency.config.ReceiverAction;
@@ -28,13 +26,17 @@ public class UpdateService extends SpiceService {
     public static final long EXECUTION_PERIOD = 20 * DurationInMillis.ONE_SECOND;
 
     private Timer timer;
-    private Handler mHandler = new CourseHandler();
 
     @Bean
     protected GlobalCurrencyRepository globalCurrencyRepository;
 
     @Bean
     CurrencyNotificationManager currencyNotificationManager;
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return START_STICKY;
+    }
 
     @Override
     public void onCreate() {
@@ -53,13 +55,9 @@ public class UpdateService extends SpiceService {
     private TimerTask executionTask = new TimerTask() {
         @Override
         public void run() {
-            updateCourses();
+            getCourse();
         }
     };
-
-    private void updateCourses() {
-        mHandler.dispatchMessage(new Message());
-    }
 
     private void getCourse() {
         spiceManager.execute(new CurrencyRetrofitRequest(),
@@ -72,20 +70,23 @@ public class UpdateService extends SpiceService {
         public void onRequestFailure(SpiceException spiceException) {
             GlobalCourses lastCourse = getLast();
             if (lastCourse != null)
-                onRequestSuccess(lastCourse);
+                show(lastCourse);
             Toast.makeText(UpdateService.this, spiceException.getMessage(), Toast.LENGTH_LONG).show();
         }
 
         @Override
         public void onRequestSuccess(GlobalCourses currencyCourse) {
+            show(currencyCourse);
+            save(currencyCourse);
+        }
+
+        private void show(GlobalCourses currencyCourse) {
             GlobalCourses lastCourse = getLast();
 
             sendBroadcast(new Intent(ReceiverAction.ON_COURSE_UPDATE_ACTION)
                     .putExtra("course", currencyCourse)
                     .putExtra("prev", lastCourse));
             currencyNotificationManager.updateNotification(currencyCourse, lastCourse);
-
-            save(currencyCourse);
         }
     }
 
@@ -95,13 +96,5 @@ public class UpdateService extends SpiceService {
 
     private GlobalCourses getLast() {
         return globalCurrencyRepository.getLastInserted();
-    }
-
-    class CourseHandler extends Handler {
-        @Override
-        public void handleMessage(Message msg) {
-            getCourse();
-        }
-
     }
 }

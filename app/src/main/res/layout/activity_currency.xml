@@ -11,4 +11,8 @@
     <TextView
         style="@style/currency"
         android:id="@+id/eur_rub"/>
+
+    <TextView
+        style="@style/currency"
+        android:id="@+id/oil"/>
 </LinearLayout>

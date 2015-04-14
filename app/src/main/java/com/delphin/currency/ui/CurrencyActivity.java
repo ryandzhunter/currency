@@ -25,6 +25,9 @@ public class CurrencyActivity extends Activity {
     @ViewById(R.id.eur_rub)
     protected TextView eurRub;
 
+    @ViewById(R.id.oil)
+    protected TextView oil;
+
     @Bean
     protected ColorHelper colorHelper;
 
@@ -43,12 +46,16 @@ public class CurrencyActivity extends Activity {
                 convertDiff(course.getUsd(), previous != null ? previous.getUsd() : course.getUsd()));
         String eurStr = String.format("%s (%s)", String.format("%.2f", course.getEur()),
                 convertDiff(course.getEur(), previous != null ? previous.getEur() : course.getEur()));
+        String oilStr = String.format("%s (%s)", String.format("%.2f", course.getOil()),
+                convertDiff(course.getOil(), previous != null ? previous.getOil() : course.getOil()));
 
         setValue(usdRub, usdStr);
         setValue(eurRub, eurStr);
+        setValue(oil, oilStr);
 
         setColor(usdRub, course.getUsd(), previous != null ? previous.getUsd() : course.getUsd());
         setColor(eurRub, course.getEur(), previous != null ? previous.getEur() : course.getEur());
+        setColor(oil, course.getOil(), previous != null ? previous.getOil() : course.getOil());
     }
 
     private String convertDiff(Double value, Double previousValue) {
@@ -68,7 +75,7 @@ public class CurrencyActivity extends Activity {
 
     @Override
     protected void onDestroy() {
-        stopService(new Intent(this, UpdateService_.class));
+//        stopService(new Intent(this, UpdateService_.class));
         super.onDestroy();
     }
 }

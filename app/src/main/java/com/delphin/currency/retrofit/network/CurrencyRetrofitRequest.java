@@ -29,22 +29,9 @@ public class CurrencyRetrofitRequest extends RetrofitSpiceRequest<GlobalCourses,
                     @Override
                     public Object fromBody(TypedInput body, Type type) throws ConversionException {
                         GlobalCourses courses = new GlobalCourses();
-                        try {
-                            InputStream in = body.in();
-                            java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
-                            String response = s.hasNext() ? s.next() : "";
-                            Matcher matcher = pattern.matcher(response);
-                            if (matcher.matches()) {
-                                String usd = matcher.group(1);
-                                String eur = matcher.group(2);
+                        courses.setDate(new Date());
 
-                                courses.setUsd(Double.parseDouble(usd));
-                                courses.setEur(Double.parseDouble(eur));
-                                courses.setDate(new Date());
-                            }
-                        } catch (IOException | NumberFormatException ignored) {
-
-                        }
+                        parseData(body, courses);
                         return courses;
                     }
 
@@ -54,6 +41,26 @@ public class CurrencyRetrofitRequest extends RetrofitSpiceRequest<GlobalCourses,
                     }
                 })
                 .build();
+    }
+
+    private void parseData(TypedInput body, GlobalCourses courses) {
+        try {
+            InputStream in = body.in();
+            java.util.Scanner s = new java.util.Scanner(in).useDelimiter("\\A");
+            String response = s.hasNext() ? s.next() : "";
+            Matcher matcher = pattern.matcher(response);
+            if (matcher.matches()) {
+                String usd = matcher.group(1);
+                String eur = matcher.group(2);
+                String oil = matcher.group(3);
+
+                courses.setUsd(Double.parseDouble(usd));
+                courses.setEur(Double.parseDouble(eur));
+                courses.setOil(Double.parseDouble(oil));
+            }
+        } catch (IOException | NumberFormatException ignored) {
+
+        }
     }
 
     @Override
