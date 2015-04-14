@@ -78,19 +78,19 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         GlobalCourses previous = courses.previous;
 
         String usdStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getUsd())),
-                convertDiff(course.getUsd(), previous != null ? previous.getUsd() : course.getUsd()));
+                convertDiff(course.getUsd(), (previous != null ? previous : course).getUsd()));
         String eurStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getEur())),
-                convertDiff(course.getEur(), previous != null ? previous.getEur() : course.getEur()));
+                convertDiff(course.getEur(), (previous != null ? previous : course).getEur()));
         String oilStr = String.format("%s (%s)", String.format("%.2f", course.getOil()),
-                convertDiff(course.getOil(), previous != null ? previous.getOil() : course.getOil()));
+                convertDiff(course.getOil(), (previous != null ? previous : course).getOil()));
 
         setValue(usdRub, usdStr);
         setValue(eurRub, eurStr);
         setValue(oil, "$" + oilStr);
 
-        setColor(usdRub, course.getUsd(), previous != null ? previous.getUsd() : course.getUsd());
-        setColor(eurRub, course.getEur(), previous != null ? previous.getEur() : course.getEur());
-        setColor(oil, course.getOil(), previous != null ? previous.getOil() : course.getOil());
+        setColor(usdRub, course.getUsd(), (previous != null ? previous : course).getUsd());
+        setColor(eurRub, course.getEur(), (previous != null ? previous : course).getEur());
+        setColor(oil, course.getOil(), (previous != null ? previous : course).getOil());
     }
 
     private String convertDiff(Double value, Double previousValue) {
@@ -100,13 +100,13 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         return (diff < 0 ? "" : "+") + String.format("%.2f", diff);
     }
 
-    private void setValue(TextView container, String course) {
-        container.setText(course);
-    }
-
     private String withRouble(String s) {
         String pattern = "%sa";
         return String.format(pattern, s);
+    }
+
+    private void setValue(TextView container, String course) {
+        container.setText(course);
     }
 
     private void setColor(TextView container, Double course, Double previous) {

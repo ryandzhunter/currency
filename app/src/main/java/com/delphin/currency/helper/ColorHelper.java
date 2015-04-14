@@ -5,9 +5,6 @@ import android.content.Context;
 import org.androidannotations.annotations.EBean;
 import org.androidannotations.annotations.RootContext;
 
-/**
- * Created by darkdelphin on 14.04.2015.
- */
 @EBean
 public class ColorHelper {
     @RootContext

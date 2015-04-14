@@ -23,23 +23,10 @@ public class CurrencyRetrofitRequest extends RetrofitSpiceRequest<GlobalCourses,
 
     public CurrencyRetrofitRequest() {
         super(GlobalCourses.class, Api.class);
+
         restAdapter = new RestAdapter.Builder()
                 .setEndpoint(Api.URL)
-                .setConverter(new Converter() {
-                    @Override
-                    public Object fromBody(TypedInput body, Type type) throws ConversionException {
-                        GlobalCourses courses = new GlobalCourses();
-                        courses.setDate(new Date());
-
-                        parseData(body, courses);
-                        return courses;
-                    }
-
-                    @Override
-                    public TypedOutput toBody(Object object) {
-                        return null;
-                    }
-                })
+                .setConverter(new ZenRusConverter())
                 .build();
     }
 
@@ -71,5 +58,22 @@ public class CurrencyRetrofitRequest extends RetrofitSpiceRequest<GlobalCourses,
     @Override
     public Api getService() {
         return restAdapter.create(Api.class);
+    }
+
+    private class ZenRusConverter implements Converter {
+
+        @Override
+        public Object fromBody(TypedInput body, Type type) throws ConversionException {
+            GlobalCourses courses = new GlobalCourses();
+            courses.setDate(new Date());
+
+            parseData(body, courses);
+            return courses;
+        }
+
+        @Override
+        public TypedOutput toBody(Object object) {
+            return null;
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.delphin.currency.service;
 
 import android.content.Intent;
-import android.widget.Toast;
 
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
@@ -44,7 +43,7 @@ public class UpdateService extends SpiceService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        getCourse(0L);
+        getCourseImmediately();
         return START_STICKY;
     }
 
@@ -74,21 +73,26 @@ public class UpdateService extends SpiceService {
                 new Date().toString(), executionDelay, new CurrencyRequestListener());
     }
 
+    private void getCourseImmediately() {
+        getCourse(0L);
+    }
+
     private class CurrencyRequestListener implements RequestListener<GlobalCourses> {
 
         @Override
         public void onRequestFailure(SpiceException spiceException) {
             GlobalCourses lastCourse = getLast();
-            if (lastCourse != null)
+            if (lastCourse != null) {
                 show(lastCourse);
-            Toast.makeText(UpdateService.this, spiceException.getMessage(), Toast.LENGTH_LONG).show();
+            }
         }
 
         @Override
         public void onRequestSuccess(GlobalCourses currencyCourse) {
             show(currencyCourse);
-            if (currencyCourse.getId() == null)
+            if (currencyCourse.getId() == null) {
                 save(currencyCourse);
+            }
         }
 
         private void show(GlobalCourses currencyCourse) {
@@ -96,8 +100,9 @@ public class UpdateService extends SpiceService {
 
             ottoBus.post(new PairCourse(currencyCourse, lastCourse));
 
-            if (storage.notificationVisibility().get())
+            if (storage.notificationVisibility().get()) {
                 currencyNotificationManager.updateNotification(currencyCourse, lastCourse);
+            }
         }
     }
 
