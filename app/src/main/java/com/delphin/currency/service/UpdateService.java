@@ -40,6 +40,7 @@ public class UpdateService extends SpiceService {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        getCourse(0L);
         return START_STICKY;
     }
 
@@ -60,13 +61,13 @@ public class UpdateService extends SpiceService {
     private TimerTask executionTask = new TimerTask() {
         @Override
         public void run() {
-            getCourse();
+            getCourse(EXECUTION_DELAY);
         }
     };
 
-    private void getCourse() {
+    private void getCourse(long executionDelay) {
         spiceManager.execute(new CurrencyRetrofitRequest(),
-                new Date().toString(), EXECUTION_DELAY, new CurrencyRequestListener());
+                new Date().toString(), executionDelay, new CurrencyRequestListener());
     }
 
     private class CurrencyRequestListener implements RequestListener<GlobalCourses> {
@@ -82,7 +83,8 @@ public class UpdateService extends SpiceService {
         @Override
         public void onRequestSuccess(GlobalCourses currencyCourse) {
             show(currencyCourse);
-            save(currencyCourse);
+            if (currencyCourse.getId() == null)
+                save(currencyCourse);
         }
 
         private void show(GlobalCourses currencyCourse) {

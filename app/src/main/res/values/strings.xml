@@ -1,4 +1,7 @@
 <resources>
     <string name="app_name">Currency</string>
     <string name="notification_visibility">Notification visibility</string>
+    <string name="usd_course">1 USD</string>
+    <string name="eur_course">1 EUR</string>
+    <string name="oil_course">1 barrel</string>
 </resources>

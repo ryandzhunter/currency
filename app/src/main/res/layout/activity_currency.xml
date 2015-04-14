@@ -6,17 +6,50 @@
     android:padding="16dip">
 
 
-    <TextView
-        style="@style/currency"
-        android:id="@+id/usd_rub" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="1">
 
-    <TextView
-        style="@style/currency"
-        android:id="@+id/eur_rub" />
+        <TextView
+            style="@style/currency_caption"
+            android:text="@string/usd_course" />
 
-    <TextView
-        style="@style/currency"
-        android:id="@+id/oil" />
+        <TextView
+            style="@style/currency"
+            android:id="@+id/usd_rub" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextView
+            style="@style/currency_caption"
+            android:text="@string/eur_course" />
+
+        <TextView
+            style="@style/currency"
+            android:id="@+id/eur_rub" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="1">
+
+        <TextView
+            style="@style/currency_caption"
+            android:text="@string/oil_course" />
+
+        <TextView
+            style="@style/currency"
+            android:id="@+id/oil" />
+    </LinearLayout>
 
     <CheckBox
         android:id="@+id/notification_visibility"
