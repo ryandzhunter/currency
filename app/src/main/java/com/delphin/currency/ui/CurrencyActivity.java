@@ -3,22 +3,27 @@ package com.delphin.currency.ui;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.delphin.currency.R;
 import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.helper.ColorHelper;
 import com.delphin.currency.service.UpdateService_;
+import com.delphin.currency.storage.Storage_;
 
+import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import greendao.GlobalCourses;
 
 @EActivity(R.layout.activity_currency)
-public class CurrencyActivity extends Activity {
+public class CurrencyActivity extends Activity implements CompoundButton.OnCheckedChangeListener {
     @ViewById(R.id.usd_rub)
     protected TextView usdRub;
 
@@ -28,13 +33,25 @@ public class CurrencyActivity extends Activity {
     @ViewById(R.id.oil)
     protected TextView oil;
 
+    @ViewById(R.id.notification_visibility)
+    protected CheckBox notificationVisibility;
+
     @Bean
     protected ColorHelper colorHelper;
+
+    @Pref
+    protected Storage_ storage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         startService(new Intent(this, UpdateService_.class));
+    }
+
+    @AfterViews
+    void afterViews() {
+        notificationVisibility.setChecked(storage.notificationVisibility().get());
+        notificationVisibility.setOnCheckedChangeListener(this);
     }
 
     @Receiver(actions = ReceiverAction.ON_COURSE_UPDATE_ACTION)
@@ -74,8 +91,7 @@ public class CurrencyActivity extends Activity {
     }
 
     @Override
-    protected void onDestroy() {
-//        stopService(new Intent(this, UpdateService_.class));
-        super.onDestroy();
+    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        storage.notificationVisibility().put(isChecked);
     }
 }

@@ -7,12 +7,14 @@ import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
 import com.delphin.currency.storage.GlobalCurrencyRepository;
+import com.delphin.currency.storage.Storage_;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
+import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Date;
 import java.util.Timer;
@@ -32,6 +34,9 @@ public class UpdateService extends SpiceService {
 
     @Bean
     CurrencyNotificationManager currencyNotificationManager;
+
+    @Pref
+    Storage_ storage;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -86,7 +91,9 @@ public class UpdateService extends SpiceService {
             sendBroadcast(new Intent(ReceiverAction.ON_COURSE_UPDATE_ACTION)
                     .putExtra("course", currencyCourse)
                     .putExtra("prev", lastCourse));
-            currencyNotificationManager.updateNotification(currencyCourse, lastCourse);
+
+            if (storage.notificationVisibility().get())
+                currencyNotificationManager.updateNotification(currencyCourse, lastCourse);
         }
     }
 

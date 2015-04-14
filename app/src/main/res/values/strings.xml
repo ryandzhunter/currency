@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Currency</string>
+    <string name="notification_visibility">Notification visibility</string>
 </resources>
