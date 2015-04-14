@@ -3,8 +3,9 @@ package com.delphin.currency.service;
 import android.content.Intent;
 import android.widget.Toast;
 
-import com.delphin.currency.config.ReceiverAction;
+import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
+import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
 import com.delphin.currency.storage.GlobalCurrencyRepository;
 import com.delphin.currency.storage.Storage_;
@@ -37,6 +38,9 @@ public class UpdateService extends SpiceService {
 
     @Pref
     Storage_ storage;
+
+    @Bean
+    OttoBus ottoBus;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -90,9 +94,7 @@ public class UpdateService extends SpiceService {
         private void show(GlobalCourses currencyCourse) {
             GlobalCourses lastCourse = getLast();
 
-            sendBroadcast(new Intent(ReceiverAction.ON_COURSE_UPDATE_ACTION)
-                    .putExtra("course", currencyCourse)
-                    .putExtra("prev", lastCourse));
+            ottoBus.post(new PairCourse(currencyCourse, lastCourse));
 
             if (storage.notificationVisibility().get())
                 currencyNotificationManager.updateNotification(currencyCourse, lastCourse);

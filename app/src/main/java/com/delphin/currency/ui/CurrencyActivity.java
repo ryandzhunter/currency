@@ -9,15 +9,16 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.delphin.currency.R;
-import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.helper.ColorHelper;
+import com.delphin.currency.model.PairCourse;
+import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.service.UpdateService_;
 import com.delphin.currency.storage.Storage_;
+import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
@@ -40,6 +41,9 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     @Bean
     protected ColorHelper colorHelper;
 
+    @Bean
+    protected OttoBus ottoBus;
+
     @Pref
     protected Storage_ storage;
 
@@ -50,6 +54,13 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         super.onCreate(savedInstanceState);
         startService(new Intent(this, UpdateService_.class));
         roubleTypeface = Typeface.createFromAsset(getAssets(), "rouble.otf");
+        ottoBus.register(this);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        ottoBus.unregister(this);
     }
 
     @AfterViews
@@ -61,10 +72,10 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         notificationVisibility.setOnCheckedChangeListener(this);
     }
 
-    @Receiver(actions = ReceiverAction.ON_COURSE_UPDATE_ACTION)
-    void onCourseUpdate(Intent intent) {
-        GlobalCourses course = (GlobalCourses) intent.getSerializableExtra("course");
-        GlobalCourses previous = (GlobalCourses) intent.getSerializableExtra("prev");
+    @Subscribe
+    public void onCourseUpdate(PairCourse courses) {
+        GlobalCourses course = courses.current;
+        GlobalCourses previous = courses.previous;
 
         String usdStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getUsd())),
                 convertDiff(course.getUsd(), previous != null ? previous.getUsd() : course.getUsd()));
