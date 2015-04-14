@@ -1,6 +1,7 @@
 package com.delphin.currency.ui;
 
 import android.app.Activity;
+import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.delphin.currency.R;
+import com.delphin.currency.config.Config;
 import com.delphin.currency.helper.ColorHelper;
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.otto.OttoBus;
@@ -19,6 +21,7 @@ import com.squareup.otto.Subscribe;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
@@ -46,6 +49,9 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
 
     @Pref
     protected Storage_ storage;
+
+    @SystemService
+    protected NotificationManager notificationManager;
 
     protected Typeface roubleTypeface;
 
@@ -116,5 +122,8 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         storage.notificationVisibility().put(isChecked);
+        if (!isChecked) {
+            notificationManager.cancel(Config.NOTIFICATION_ID);
+        }
     }
 }
