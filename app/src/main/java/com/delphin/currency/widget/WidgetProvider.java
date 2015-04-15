@@ -45,18 +45,18 @@ public class WidgetProvider extends AppWidgetProvider {
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_widget);
 
         GlobalCourses course = courses.current;
-        GlobalCourses previous = courses.previous;
+        GlobalCourses previous = courses.previous != null ? courses.previous : course;
 
         remoteViews.setTextViewText(R.id.usd_rub, String.valueOf(course.getUsd()));
         remoteViews.setTextViewText(R.id.eur_rub, String.valueOf(course.getEur()));
         remoteViews.setTextViewText(R.id.oil, String.valueOf(course.getOil()));
 
         remoteViews.setTextColor(R.id.usd_rub, colorHelper.getColor(course.getUsd(),
-                (previous != null ? previous : course).getUsd()));
+                previous.getUsd()));
         remoteViews.setTextColor(R.id.eur_rub, colorHelper.getColor(course.getEur(),
-                (previous != null ? previous : course).getEur()));
+                previous.getEur()));
         remoteViews.setTextColor(R.id.oil, colorHelper.getColor(course.getOil(),
-                (previous != null ? previous : course).getOil()));
+                previous.getOil()));
 
         Intent intent = new Intent(context, CurrencyActivity_.class).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);

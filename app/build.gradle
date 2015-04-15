@@ -19,7 +19,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 21
         versionCode 1
-        versionName "1.0"
+        versionName "1.0-alpha"
     }
 
     buildTypes {
@@ -39,7 +39,9 @@ android {
         variant.outputs.each { output ->
             output.outputFile = new File(
                     output.outputFile.parent,
-                    output.outputFile.name.replace(".apk", "-${variant.versionName}.apk"))
+                    output.outputFile.name
+                            .replace(".apk", "-${variant.versionName}.apk")
+                            .replace("app", "${variant.applicationId}"))
         }
     }
 

@@ -82,22 +82,22 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     @Subscribe
     public void onCourseUpdate(PairCourse courses) {
         GlobalCourses course = courses.current;
-        GlobalCourses previous = courses.previous;
+        GlobalCourses previous = courses.previous != null ? courses.previous : course;
 
         String usdStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getUsd())),
-                convertDiff(course.getUsd(), (previous != null ? previous : course).getUsd()));
+                convertDiff(course.getUsd(), previous.getUsd()));
         String eurStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getEur())),
-                convertDiff(course.getEur(), (previous != null ? previous : course).getEur()));
+                convertDiff(course.getEur(), previous.getEur()));
         String oilStr = String.format("%s (%s)", String.format("%.2f", course.getOil()),
-                convertDiff(course.getOil(), (previous != null ? previous : course).getOil()));
+                convertDiff(course.getOil(), previous.getOil()));
 
         setValue(usdRub, usdStr);
         setValue(eurRub, eurStr);
         setValue(oil, "$" + oilStr);
 
-        setColor(usdRub, course.getUsd(), (previous != null ? previous : course).getUsd());
-        setColor(eurRub, course.getEur(), (previous != null ? previous : course).getEur());
-        setColor(oil, course.getOil(), (previous != null ? previous : course).getOil());
+        setColor(usdRub, course.getUsd(), previous.getUsd());
+        setColor(eurRub, course.getEur(), previous.getEur());
+        setColor(oil, course.getOil(), previous.getOil());
     }
 
     private String convertDiff(Double value, Double previousValue) {
