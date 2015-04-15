@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.delphin.currency.R;
 import com.delphin.currency.config.Config;
+import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.helper.ColorHelper;
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.otto.OttoBus;
@@ -124,6 +125,6 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         storage.notificationVisibility().put(isChecked);
         if (!isChecked) {
             notificationManager.cancel(Config.NOTIFICATION_ID);
-        }
+        } else sendBroadcast(new Intent(ReceiverAction.SNOW_NOTIFICATION_IMMEDIATELY_ACTION));
     }
 }

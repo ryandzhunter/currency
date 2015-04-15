@@ -2,6 +2,7 @@ package com.delphin.currency.service;
 
 import android.content.Intent;
 
+import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.otto.OttoBus;
@@ -15,6 +16,7 @@ import com.octo.android.robospice.request.listener.RequestListener;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
+import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Date;
@@ -41,6 +43,8 @@ public class UpdateService extends SpiceService {
 
     @Bean
     OttoBus ottoBus;
+
+    protected PairCourse lastSentInfo;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -75,7 +79,8 @@ public class UpdateService extends SpiceService {
     }
 
     private void getCourseImmediately() {
-        getCourse(0L);
+        if (lastSentInfo != null)
+            sendData(lastSentInfo);
     }
 
     private class CurrencyRequestListener implements RequestListener<GlobalCourses> {
@@ -99,13 +104,20 @@ public class UpdateService extends SpiceService {
         private void show(GlobalCourses currencyCourse) {
             GlobalCourses lastCourse = getLast();
 
-            PairCourse courses = new PairCourse(currencyCourse, lastCourse);
-            ottoBus.post(courses);
-            sendBroadcast(new Intent(WidgetProvider.CURRENCY_WIDGET_UPDATE_ACTION).putExtra("courses", courses));
+            lastSentInfo = new PairCourse(currencyCourse, lastCourse);
+            sendData(lastSentInfo);
+        }
+    }
 
-            if (storage.notificationVisibility().get()) {
-                currencyNotificationManager.updateNotification(currencyCourse, lastCourse);
-            }
+    private void sendData(PairCourse pairCourse) {
+        ottoBus.post(pairCourse);
+        sendBroadcast(new Intent(WidgetProvider.CURRENCY_WIDGET_UPDATE_ACTION).putExtra("courses", pairCourse));
+        showNotificationIfShould(pairCourse);
+    }
+
+    private void showNotificationIfShould(PairCourse pairCourse) {
+        if (storage.notificationVisibility().get()) {
+            currencyNotificationManager.updateNotification(pairCourse.current, pairCourse.previous);
         }
     }
 
@@ -115,5 +127,16 @@ public class UpdateService extends SpiceService {
 
     private GlobalCourses getLast() {
         return globalCurrencyRepository.getLastInserted();
+    }
+
+    @Receiver(actions = ReceiverAction.IMMEDIATELY_UPDATE_ACTION)
+    public void onImmediatelyUpdateCalling() {
+        getCourseImmediately();
+    }
+
+    @Receiver(actions = ReceiverAction.SNOW_NOTIFICATION_IMMEDIATELY_ACTION)
+    public void onImmediatelyNotificationShowing() {
+        if (lastSentInfo != null)
+            showNotificationIfShould(lastSentInfo);
     }
 }

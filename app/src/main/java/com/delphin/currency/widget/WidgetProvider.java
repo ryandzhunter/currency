@@ -27,6 +27,11 @@ public class WidgetProvider extends AppWidgetProvider {
     @Bean
     protected ColorHelper colorHelper;
 
+    @Override
+    public void onEnabled(Context context) {
+        context.sendBroadcast(new Intent(com.delphin.currency.config.ReceiverAction.IMMEDIATELY_UPDATE_ACTION));
+    }
+
     @ReceiverAction(CURRENCY_WIDGET_UPDATE_ACTION)
     public void onCourseUpdate(@ReceiverAction.Extra PairCourse courses, Context context) {
         ComponentName thatWidget = new ComponentName(context.getApplicationContext(), getClass());

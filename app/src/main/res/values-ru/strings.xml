@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Currency</string>
+    <string name="notification_visibility">Выводить курс в панели уведомлений</string>
+    <string name="usd_course">1$</string>
+    <string name="eur_course">1€</string>
+    <string name="oil_course">1 баррель</string>
+</resources>
