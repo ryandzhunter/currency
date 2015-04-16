@@ -1,7 +1,6 @@
 package com.delphin.currency.ui;
 
 import android.app.Activity;
-import android.app.NotificationManager;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
@@ -10,10 +9,11 @@ import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.delphin.currency.R;
-import com.delphin.currency.config.Config;
 import com.delphin.currency.helper.Calculator;
 import com.delphin.currency.helper.ColorHelper;
+import com.delphin.currency.helper.CurrencyFormatter;
 import com.delphin.currency.model.PairCourse;
+import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.otto.events.CheckServiceStatusEvent;
 import com.delphin.currency.otto.events.ServiceIsRunningEvent;
@@ -26,7 +26,6 @@ import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
-import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -62,11 +61,14 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     @Pref
     protected Storage_ storage;
 
-    @SystemService
-    protected NotificationManager notificationManager;
+    @Bean
+    protected CurrencyNotificationManager notificationManager;
 
     @Bean
     protected Calculator calculator;
+
+    @Bean
+    protected CurrencyFormatter currencyFormatter;
 
     @StringRes(R.string.currency_with_diff)
     protected String currencyWithDiff;
@@ -130,48 +132,42 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         GlobalCourses course = courses.current;
         GlobalCourses previous = courses.previous != null ? courses.previous : course;
 
-        String usdStr = formatCurrencyWithDiff(withRouble(cut(course.getUsd())), convertDiff(course.getUsd(), previous.getUsd()));
-        String eurStr = formatCurrencyWithDiff(withRouble(cut(course.getEur())), convertDiff(course.getEur(), previous.getEur()));
-        String oilStr = formatCurrencyWithDiff(cut(course.getOil()), convertDiff(course.getOil(), previous.getOil()));
+        String usdStr = formatCurrencyWithDiff(
+                currencyFormatter.formatToRouble(currencyFormatter.format(course.getUsd())),
+                currencyFormatter.formatDiff(course.getUsd(), previous.getUsd()));
+        String eurStr = formatCurrencyWithDiff(
+                currencyFormatter.formatToRouble(currencyFormatter.format(course.getEur())),
+                currencyFormatter.formatDiff(course.getEur(), previous.getEur()));
+        String oilStr = formatCurrencyWithDiff(
+                currencyFormatter.format(course.getOil()),
+                currencyFormatter.formatDiff(course.getOil(), previous.getOil()));
 
-        setValue(usdRub, usdStr);
-        setValue(eurRub, eurStr);
-        setValue(oil, "$" + oilStr);
+        String eurToUsdStr = formatEurToUsd(
+                currencyFormatter.format(
+                        calculator.eurToUsd(course.getEur(), course.getUsd())));
+        String oilRoubleCostStr =
+                currencyFormatter.formatToRouble(
+                        currencyFormatter.format(
+                                calculator.oilRoubleCost(course.getUsd(), course.getOil())));
+
+        usdRub.setText(usdStr);
+        eurRub.setText(eurStr);
+        oil.setText(currencyFormatter.formatToUsd(oilStr));
 
         setCurrencyDiffColor(usdRub, course.getUsd(), previous.getUsd());
         setCurrencyDiffColor(eurRub, course.getEur(), previous.getEur());
         setOilDiffColor(oil, course.getOil(), previous.getOil());
 
-        setValue(eurUsd, formatEurToUsd(cut(calculator.eurToUsd(course.getEur(), course.getUsd()))));
-        setValue(oilRub, withRouble(cut(calculator.oilRoubleCost(course.getUsd(), course.getOil()))));
+        eurUsd.setText(eurToUsdStr);
+        oilRub.setText(oilRoubleCostStr);
     }
 
     private String formatEurToUsd(String s) {
         return String.format(formatEurToUsd, s);
     }
 
-    private String cut(double a) {
-        return String.format("%.2f", a);
-    }
-
     private String formatCurrencyWithDiff(String value, String diff) {
         return String.format(currencyWithDiff, value, diff);
-    }
-
-    private String convertDiff(Double value, Double previousValue) {
-        if (previousValue == null) return "0.0";
-
-        double diff = value - previousValue;
-        return (diff < 0 ? "" : "+") + String.format("%.2f", diff);
-    }
-
-    private String withRouble(String s) {
-        String pattern = "%sa";
-        return String.format(pattern, s);
-    }
-
-    private void setValue(TextView container, String course) {
-        container.setText(course);
     }
 
     private void setCurrencyDiffColor(TextView container, Double course, Double previous) {
@@ -185,8 +181,9 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     @Override
     public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
         storage.notificationVisibility().put(isChecked);
+
         if (!isChecked) {
-            notificationManager.cancel(Config.NOTIFICATION_ID);
+            notificationManager.cancelNotification();
         } else ottoBus.post(new ShowNotificationImmediatelyEvent());
     }
 

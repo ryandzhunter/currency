@@ -8,8 +8,8 @@ import android.support.v4.app.NotificationCompat;
 import android.widget.RemoteViews;
 
 import com.delphin.currency.R;
-import com.delphin.currency.config.Config;
 import com.delphin.currency.helper.ColorHelper;
+import com.delphin.currency.helper.CurrencyFormatter;
 import com.delphin.currency.ui.CurrencyActivity_;
 
 import org.androidannotations.annotations.Bean;
@@ -21,6 +21,7 @@ import greendao.GlobalCourses;
 
 @EBean
 public class CurrencyNotificationManager {
+    private static final int NOTIFICATION_ID = 100;
 
     @RootContext
     protected Context context;
@@ -31,12 +32,12 @@ public class CurrencyNotificationManager {
     @Bean
     protected ColorHelper colorHelper;
 
-    public CurrencyNotificationManager() {
-    }
+    @Bean
+    protected CurrencyFormatter currencyFormatter;
 
     public void createInfoNotification(GlobalCourses values, GlobalCourses previous) {
         NotificationCompat.Builder builder = createNotificationBuilder(values, previous);
-        notificationManager.notify(Config.NOTIFICATION_ID, builder.build());
+        notificationManager.notify(NOTIFICATION_ID, builder.build());
     }
 
     protected NotificationCompat.Builder createNotificationBuilder(GlobalCourses values, GlobalCourses previous) {
@@ -58,9 +59,9 @@ public class CurrencyNotificationManager {
         }
 
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_notification);
-        remoteViews.setTextViewText(R.id.usd_rub, String.valueOf(course.getUsd()));
-        remoteViews.setTextViewText(R.id.eur_rub, String.valueOf(course.getEur()));
-        remoteViews.setTextViewText(R.id.oil, String.valueOf(course.getOil()));
+        remoteViews.setTextViewText(R.id.usd_rub, currencyFormatter.format(course.getUsd()));
+        remoteViews.setTextViewText(R.id.eur_rub, currencyFormatter.format(course.getEur()));
+        remoteViews.setTextViewText(R.id.oil, currencyFormatter.format(course.getOil()));
 
         remoteViews.setTextColor(R.id.usd_rub, colorHelper.getCurrencyDiffColor(course.getUsd(), previous.getUsd()));
         remoteViews.setTextColor(R.id.eur_rub, colorHelper.getCurrencyDiffColor(course.getEur(), previous.getEur()));
@@ -70,6 +71,10 @@ public class CurrencyNotificationManager {
 
     public void updateNotification(GlobalCourses values, GlobalCourses previous) {
         createInfoNotification(values, previous);
+    }
+
+    public void cancelNotification() {
+        notificationManager.cancel(NOTIFICATION_ID);
     }
 
     protected int icon() {
