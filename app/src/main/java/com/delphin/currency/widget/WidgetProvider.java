@@ -12,6 +12,8 @@ import android.widget.RemoteViews;
 import com.delphin.currency.R;
 import com.delphin.currency.helper.ColorHelper;
 import com.delphin.currency.model.PairCourse;
+import com.delphin.currency.otto.OttoBus;
+import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
 import com.delphin.currency.ui.CurrencyActivity_;
 
 import org.androidannotations.annotations.Bean;
@@ -27,9 +29,12 @@ public class WidgetProvider extends AppWidgetProvider {
     @Bean
     protected ColorHelper colorHelper;
 
+    @Bean
+    protected OttoBus ottoBus;
+
     @Override
     public void onEnabled(Context context) {
-        context.sendBroadcast(new Intent(com.delphin.currency.config.ReceiverAction.IMMEDIATELY_UPDATE_ACTION));
+        ottoBus.post(new ImmediatelyUpdateActionEvent());
     }
 
     @ReceiverAction(CURRENCY_WIDGET_UPDATE_ACTION)

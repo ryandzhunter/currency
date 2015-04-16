@@ -2,10 +2,13 @@ package com.delphin.currency.service;
 
 import android.content.Intent;
 
-import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.otto.OttoBus;
+import com.delphin.currency.otto.events.CheckServiceStatusEvent;
+import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
+import com.delphin.currency.otto.events.ServiceIsRunningEvent;
+import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
 import com.delphin.currency.storage.GlobalCurrencyRepository;
 import com.delphin.currency.storage.Storage_;
@@ -13,10 +16,10 @@ import com.delphin.currency.widget.WidgetProvider;
 import com.octo.android.robospice.persistence.DurationInMillis;
 import com.octo.android.robospice.persistence.exception.SpiceException;
 import com.octo.android.robospice.request.listener.RequestListener;
+import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EService;
-import org.androidannotations.annotations.Receiver;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import java.util.Date;
@@ -55,6 +58,7 @@ public class UpdateService extends SpiceService {
     @Override
     public void onCreate() {
         super.onCreate();
+        ottoBus.register(this);
         timer = new Timer();
         timer.schedule(executionTask, 0L, EXECUTION_PERIOD);
     }
@@ -62,6 +66,7 @@ public class UpdateService extends SpiceService {
     @Override
     public void onDestroy() {
         super.onDestroy();
+        ottoBus.unregister(this);
         if (timer != null)
             timer.cancel();
     }
@@ -129,14 +134,19 @@ public class UpdateService extends SpiceService {
         return globalCurrencyRepository.getLastInserted();
     }
 
-    @Receiver(actions = ReceiverAction.IMMEDIATELY_UPDATE_ACTION)
-    public void onImmediatelyUpdateCalling() {
+    @Subscribe
+    public void onImmediatelyUpdateCalling(ImmediatelyUpdateActionEvent event) {
         getCourseImmediately();
     }
 
-    @Receiver(actions = ReceiverAction.SNOW_NOTIFICATION_IMMEDIATELY_ACTION)
-    public void onImmediatelyNotificationShowing() {
+    @Subscribe
+    public void onImmediatelyNotificationShowing(ShowNotificationImmediatelyEvent event) {
         if (lastSentInfo != null)
             showNotificationIfShould(lastSentInfo);
+    }
+
+    @Subscribe
+    public void onCheck(CheckServiceStatusEvent event) {
+        ottoBus.post(new ServiceIsRunningEvent());
     }
 }

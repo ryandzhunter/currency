@@ -11,15 +11,18 @@ import android.widget.TextView;
 
 import com.delphin.currency.R;
 import com.delphin.currency.config.Config;
-import com.delphin.currency.config.ReceiverAction;
 import com.delphin.currency.helper.ColorHelper;
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.otto.OttoBus;
+import com.delphin.currency.otto.events.CheckServiceStatusEvent;
+import com.delphin.currency.otto.events.ServiceIsRunningEvent;
+import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
 import com.delphin.currency.service.UpdateService_;
 import com.delphin.currency.storage.Storage_;
 import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterViews;
+import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.SystemService;
@@ -55,13 +58,40 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     protected NotificationManager notificationManager;
 
     protected Typeface roubleTypeface;
+    protected boolean serviceIsRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        startService(new Intent(this, UpdateService_.class));
         roubleTypeface = Typeface.createFromAsset(getAssets(), "rouble.otf");
         ottoBus.register(this);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        checkServiceStatus();
+    }
+
+    private void checkServiceStatus() {
+        ottoBus.post(new CheckServiceStatusEvent());
+        startServiceIfShould();
+    }
+
+    @Subscribe
+    public void onServiceRunning(ServiceIsRunningEvent event) {
+        serviceIsRunning = true;
+    }
+
+    @Background
+    protected void startServiceIfShould() {
+        try {
+            Thread.sleep(1000);
+            if (!serviceIsRunning) {
+                startService(new Intent(this, UpdateService_.class));
+            }
+        } catch (InterruptedException ignored) {
+        }
     }
 
     @Override
@@ -125,6 +155,6 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         storage.notificationVisibility().put(isChecked);
         if (!isChecked) {
             notificationManager.cancel(Config.NOTIFICATION_ID);
-        } else sendBroadcast(new Intent(ReceiverAction.SNOW_NOTIFICATION_IMMEDIATELY_ACTION));
+        } else ottoBus.post(new ShowNotificationImmediatelyEvent());
     }
 }
