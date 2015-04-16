@@ -106,10 +106,12 @@ public class CurrencyActivity extends Activity {
     @Background
     protected void startServiceIfShould() {
         try {
+            ottoBus.post(new ImmediatelyUpdateActionEvent());
+
             Thread.sleep(1000);
             if (!serviceIsRunning) {
                 startService(new Intent(this, UpdateService_.class));
-            } else ottoBus.post(new ImmediatelyUpdateActionEvent());
+            }
         } catch (InterruptedException ignored) {
         }
     }
