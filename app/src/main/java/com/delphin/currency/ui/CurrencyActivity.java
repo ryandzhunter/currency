@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.delphin.currency.R;
@@ -26,6 +25,7 @@ import com.squareup.otto.Subscribe;
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
+import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.StringRes;
@@ -34,7 +34,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import greendao.GlobalCourses;
 
 @EActivity(R.layout.activity_currency)
-public class CurrencyActivity extends Activity implements CompoundButton.OnCheckedChangeListener {
+public class CurrencyActivity extends Activity {
     @ViewById(R.id.usd_rub)
     protected TextView usdRub;
 
@@ -125,7 +125,6 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         setRoubleTypeface(usdRub, eurRub, oilRub);
 
         notificationVisibility.setChecked(storage.notificationVisibility().get());
-        notificationVisibility.setOnCheckedChangeListener(this);
     }
 
     @Subscribe
@@ -179,8 +178,8 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         container.setTextColor(colorHelper.getOilDiffColor(course, previous));
     }
 
-    @Override
-    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    @CheckedChange(R.id.notification_visibility)
+    void onNotificationVisibilityChanged(boolean isChecked) {
         storage.notificationVisibility().put(isChecked);
 
         if (!isChecked) {
