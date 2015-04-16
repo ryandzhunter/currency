@@ -11,6 +11,7 @@ import android.widget.TextView;
 
 import com.delphin.currency.R;
 import com.delphin.currency.config.Config;
+import com.delphin.currency.helper.Calculator;
 import com.delphin.currency.helper.ColorHelper;
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.otto.OttoBus;
@@ -27,6 +28,7 @@ import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EActivity;
 import org.androidannotations.annotations.SystemService;
 import org.androidannotations.annotations.ViewById;
+import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.annotations.sharedpreferences.Pref;
 
 import greendao.GlobalCourses;
@@ -45,6 +47,12 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     @ViewById(R.id.notification_visibility)
     protected CheckBox notificationVisibility;
 
+    @ViewById(R.id.eur_usd)
+    protected TextView eurUsd;
+
+    @ViewById(R.id.oil_rub)
+    protected TextView oilRub;
+
     @Bean
     protected ColorHelper colorHelper;
 
@@ -56,6 +64,15 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
 
     @SystemService
     protected NotificationManager notificationManager;
+
+    @Bean
+    protected Calculator calculator;
+
+    @StringRes(R.string.currency_with_diff)
+    protected String currencyWithDiff;
+
+    @StringRes(R.string.format_eur_to_usd)
+    protected String formatEurToUsd;
 
     protected Typeface roubleTypeface;
     protected boolean serviceIsRunning = false;
@@ -102,8 +119,7 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
 
     @AfterViews
     void afterViews() {
-        usdRub.setTypeface(roubleTypeface);
-        eurRub.setTypeface(roubleTypeface);
+        setRoubleTypeface(usdRub, eurRub, oilRub);
 
         notificationVisibility.setChecked(storage.notificationVisibility().get());
         notificationVisibility.setOnCheckedChangeListener(this);
@@ -114,20 +130,32 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         GlobalCourses course = courses.current;
         GlobalCourses previous = courses.previous != null ? courses.previous : course;
 
-        String usdStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getUsd())),
-                convertDiff(course.getUsd(), previous.getUsd()));
-        String eurStr = String.format("%s (%s)", withRouble(String.format("%.2f", course.getEur())),
-                convertDiff(course.getEur(), previous.getEur()));
-        String oilStr = String.format("%s (%s)", String.format("%.2f", course.getOil()),
-                convertDiff(course.getOil(), previous.getOil()));
+        String usdStr = formatCurrencyWithDiff(withRouble(cut(course.getUsd())), convertDiff(course.getUsd(), previous.getUsd()));
+        String eurStr = formatCurrencyWithDiff(withRouble(cut(course.getEur())), convertDiff(course.getEur(), previous.getEur()));
+        String oilStr = formatCurrencyWithDiff(cut(course.getOil()), convertDiff(course.getOil(), previous.getOil()));
 
         setValue(usdRub, usdStr);
         setValue(eurRub, eurStr);
         setValue(oil, "$" + oilStr);
 
-        setColor(usdRub, course.getUsd(), previous.getUsd());
-        setColor(eurRub, course.getEur(), previous.getEur());
-        setColor(oil, course.getOil(), previous.getOil());
+        setCurrencyDiffColor(usdRub, course.getUsd(), previous.getUsd());
+        setCurrencyDiffColor(eurRub, course.getEur(), previous.getEur());
+        setOilDiffColor(oil, course.getOil(), previous.getOil());
+
+        setValue(eurUsd, formatEurToUsd(cut(calculator.eurToUsd(course.getEur(), course.getUsd()))));
+        setValue(oilRub, withRouble(cut(calculator.oilRoubleCost(course.getUsd(), course.getOil()))));
+    }
+
+    private String formatEurToUsd(String s) {
+        return String.format(formatEurToUsd, s);
+    }
+
+    private String cut(double a) {
+        return String.format("%.2f", a);
+    }
+
+    private String formatCurrencyWithDiff(String value, String diff) {
+        return String.format(currencyWithDiff, value, diff);
     }
 
     private String convertDiff(Double value, Double previousValue) {
@@ -146,8 +174,12 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         container.setText(course);
     }
 
-    private void setColor(TextView container, Double course, Double previous) {
+    private void setCurrencyDiffColor(TextView container, Double course, Double previous) {
         container.setTextColor(colorHelper.getCurrencyDiffColor(course, previous));
+    }
+
+    private void setOilDiffColor(TextView container, Double course, Double previous) {
+        container.setTextColor(colorHelper.getOilDiffColor(course, previous));
     }
 
     @Override
@@ -156,5 +188,13 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
         if (!isChecked) {
             notificationManager.cancel(Config.NOTIFICATION_ID);
         } else ottoBus.post(new ShowNotificationImmediatelyEvent());
+    }
+
+    private void setRoubleTypeface(TextView... views) {
+        if (views != null && views.length > 0) {
+            for (TextView textView : views) {
+                textView.setTypeface(roubleTypeface);
+            }
+        }
     }
 }

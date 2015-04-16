@@ -6,11 +6,7 @@
     android:padding="16dip">
 
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="1">
+    <LinearLayout style="@style/row_style">
 
         <TextView
             style="@style/currency_caption"
@@ -21,11 +17,7 @@
             android:id="@+id/usd_rub" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="1">
+    <LinearLayout style="@style/row_style">
 
         <TextView
             style="@style/currency_caption"
@@ -34,13 +26,13 @@
         <TextView
             style="@style/currency"
             android:id="@+id/eur_rub" />
+
+        <TextView
+            style="@style/futher_info"
+            android:id="@+id/eur_usd" />
     </LinearLayout>
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:orientation="vertical"
-        android:layout_weight="1">
+    <LinearLayout style="@style/row_style">
 
         <TextView
             style="@style/currency_caption"
@@ -49,6 +41,10 @@
         <TextView
             style="@style/currency"
             android:id="@+id/oil" />
+
+        <TextView
+            style="@style/futher_info"
+            android:id="@+id/oil_rub" />
     </LinearLayout>
 
     <CheckBox
