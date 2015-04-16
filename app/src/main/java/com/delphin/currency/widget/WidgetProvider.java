@@ -15,16 +15,16 @@ import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
 import com.delphin.currency.ui.CurrencyActivity_;
+import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.EReceiver;
-import org.androidannotations.annotations.ReceiverAction;
 
 import greendao.GlobalCourses;
 
 @EReceiver
 public class WidgetProvider extends AppWidgetProvider {
-    public static final String CURRENCY_WIDGET_UPDATE_ACTION = "com.delphin.currency.action.CURRENCY_WIDGET_UPDATE_ACTION";
+    Context context;
 
     @Bean
     protected ColorHelper colorHelper;
@@ -34,11 +34,19 @@ public class WidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onEnabled(Context context) {
+        this.context = context;
+        ottoBus.register(this);
         ottoBus.post(new ImmediatelyUpdateActionEvent());
     }
 
-    @ReceiverAction(CURRENCY_WIDGET_UPDATE_ACTION)
-    public void onCourseUpdate(@ReceiverAction.Extra PairCourse courses, Context context) {
+    @Override
+    public void onDisabled(Context context) {
+        ottoBus.unregister(this);
+        super.onDisabled(context);
+    }
+
+    @Subscribe
+    public void onCourseUpdate(PairCourse courses) {
         ComponentName thatWidget = new ComponentName(context.getApplicationContext(), getClass());
         int[] appWidgetIds = AppWidgetManager.getInstance(context).getAppWidgetIds(thatWidget);
         for (int id : appWidgetIds) {
