@@ -53,14 +53,18 @@ public class CurrencyNotificationManager {
     }
 
     private RemoteViews getRemoteViews(GlobalCourses course, GlobalCourses previous) {
+        if (previous == null) {
+            previous = course;
+        }
+
         RemoteViews remoteViews = new RemoteViews(context.getPackageName(), R.layout.layout_notification);
         remoteViews.setTextViewText(R.id.usd_rub, String.valueOf(course.getUsd()));
         remoteViews.setTextViewText(R.id.eur_rub, String.valueOf(course.getEur()));
         remoteViews.setTextViewText(R.id.oil, String.valueOf(course.getOil()));
 
-        remoteViews.setTextColor(R.id.usd_rub, colorHelper.getColor(course.getUsd(), previous != null ? previous.getUsd() : course.getUsd()));
-        remoteViews.setTextColor(R.id.eur_rub, colorHelper.getColor(course.getEur(), previous != null ? previous.getEur() : course.getEur()));
-        remoteViews.setTextColor(R.id.oil, colorHelper.getColor(course.getOil(), previous != null ? previous.getOil() : course.getOil()));
+        remoteViews.setTextColor(R.id.usd_rub, colorHelper.getCurrencyDiffColor(course.getUsd(), previous.getUsd()));
+        remoteViews.setTextColor(R.id.eur_rub, colorHelper.getCurrencyDiffColor(course.getEur(), previous.getEur()));
+        remoteViews.setTextColor(R.id.oil, colorHelper.getOilDiffColor(course.getOil(), previous.getOil()));
         return remoteViews;
     }
 

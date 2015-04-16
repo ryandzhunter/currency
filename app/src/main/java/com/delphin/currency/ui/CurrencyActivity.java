@@ -117,7 +117,7 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
     }
 
     private void setColor(TextView container, Double course, Double previous) {
-        container.setTextColor(colorHelper.getColor(course, previous));
+        container.setTextColor(colorHelper.getCurrencyDiffColor(course, previous));
     }
 
     @Override

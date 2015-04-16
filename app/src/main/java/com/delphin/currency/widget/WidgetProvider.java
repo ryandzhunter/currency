@@ -51,11 +51,11 @@ public class WidgetProvider extends AppWidgetProvider {
         remoteViews.setTextViewText(R.id.eur_rub, String.valueOf(course.getEur()));
         remoteViews.setTextViewText(R.id.oil, String.valueOf(course.getOil()));
 
-        remoteViews.setTextColor(R.id.usd_rub, colorHelper.getColor(course.getUsd(),
+        remoteViews.setTextColor(R.id.usd_rub, colorHelper.getCurrencyDiffColor(course.getUsd(),
                 previous.getUsd()));
-        remoteViews.setTextColor(R.id.eur_rub, colorHelper.getColor(course.getEur(),
+        remoteViews.setTextColor(R.id.eur_rub, colorHelper.getCurrencyDiffColor(course.getEur(),
                 previous.getEur()));
-        remoteViews.setTextColor(R.id.oil, colorHelper.getColor(course.getOil(),
+        remoteViews.setTextColor(R.id.oil, colorHelper.getCurrencyDiffColor(course.getOil(),
                 previous.getOil()));
 
         Intent intent = new Intent(context, CurrencyActivity_.class).putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id);
