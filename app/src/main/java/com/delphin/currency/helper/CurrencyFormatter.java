@@ -2,6 +2,9 @@ package com.delphin.currency.helper;
 
 import org.androidannotations.annotations.EBean;
 
+import java.text.NumberFormat;
+import java.util.Locale;
+
 @EBean
 public class CurrencyFormatter {
     public String format(double value) {
@@ -12,8 +15,8 @@ public class CurrencyFormatter {
         return String.format("%sa", value);
     }
 
-    public String formatToUsd(String value) {
-        return "$" + value;
+    public String formatToUsd(double value) {
+        return NumberFormat.getCurrencyInstance(Locale.US).format(value);
     }
 
     public String formatDiff(Double value, Double previousValue) {

@@ -16,6 +16,7 @@ import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.otto.events.CheckServiceStatusEvent;
+import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
 import com.delphin.currency.otto.events.ServiceIsRunningEvent;
 import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
 import com.delphin.currency.service.UpdateService_;
@@ -108,7 +109,7 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
             Thread.sleep(1000);
             if (!serviceIsRunning) {
                 startService(new Intent(this, UpdateService_.class));
-            }
+            } else ottoBus.post(new ImmediatelyUpdateActionEvent());
         } catch (InterruptedException ignored) {
         }
     }
@@ -139,7 +140,7 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
                 currencyFormatter.formatToRouble(currencyFormatter.format(course.getEur())),
                 currencyFormatter.formatDiff(course.getEur(), previous.getEur()));
         String oilStr = formatCurrencyWithDiff(
-                currencyFormatter.format(course.getOil()),
+                currencyFormatter.formatToUsd(course.getOil()),
                 currencyFormatter.formatDiff(course.getOil(), previous.getOil()));
 
         String eurToUsdStr = formatEurToUsd(
@@ -152,7 +153,7 @@ public class CurrencyActivity extends Activity implements CompoundButton.OnCheck
 
         usdRub.setText(usdStr);
         eurRub.setText(eurStr);
-        oil.setText(currencyFormatter.formatToUsd(oilStr));
+        oil.setText(oilStr);
 
         setCurrencyDiffColor(usdRub, course.getUsd(), previous.getUsd());
         setCurrencyDiffColor(eurRub, course.getEur(), previous.getEur());
