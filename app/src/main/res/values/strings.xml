@@ -1,4 +1,6 @@
 <resources>
+    <string name="flurry_api_key">DNZ38BQHCKXP9R68QTV9</string>
+
     <string name="app_name">Currency</string>
     <string name="notification_visibility">Notification visibility</string>
     <string name="usd_course">1 USD</string>

@@ -20,6 +20,7 @@ import com.delphin.currency.otto.events.ServiceIsRunningEvent;
 import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
 import com.delphin.currency.service.UpdateService_;
 import com.delphin.currency.storage.Storage_;
+import com.flurry.android.FlurryAgent;
 import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterViews;
@@ -76,6 +77,9 @@ public class CurrencyActivity extends Activity {
 
     @StringRes(R.string.format_eur_to_usd)
     protected String formatEurToUsd;
+
+    @StringRes(R.string.flurry_api_key)
+    String flurryApiKey;
 
     protected Typeface roubleTypeface;
     protected boolean serviceIsRunning = false;
@@ -195,5 +199,17 @@ public class CurrencyActivity extends Activity {
                 textView.setTypeface(roubleTypeface);
             }
         }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        FlurryAgent.onEndSession(this);
+    }
+
+    @Override
+    protected void onStart() {
+        FlurryAgent.onStartSession(this, flurryApiKey);
+        super.onStart();
     }
 }
