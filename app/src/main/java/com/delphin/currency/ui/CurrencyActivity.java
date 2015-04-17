@@ -1,7 +1,6 @@
 package com.delphin.currency.ui;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.widget.CheckBox;
@@ -14,17 +13,13 @@ import com.delphin.currency.helper.CurrencyFormatter;
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.otto.OttoBus;
-import com.delphin.currency.otto.events.CheckServiceStatusEvent;
 import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
-import com.delphin.currency.otto.events.ServiceIsRunningEvent;
 import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
-import com.delphin.currency.service.UpdateService_;
 import com.delphin.currency.storage.Storage_;
 import com.flurry.android.FlurryAgent;
 import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterViews;
-import org.androidannotations.annotations.Background;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.EActivity;
@@ -82,7 +77,6 @@ public class CurrencyActivity extends Activity {
     String flurryApiKey;
 
     protected Typeface roubleTypeface;
-    protected boolean serviceIsRunning = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,30 +88,7 @@ public class CurrencyActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        checkServiceStatus();
-    }
-
-    private void checkServiceStatus() {
-        ottoBus.post(new CheckServiceStatusEvent());
-        startServiceIfShould();
-    }
-
-    @Subscribe
-    public void onServiceRunning(ServiceIsRunningEvent event) {
-        serviceIsRunning = true;
-    }
-
-    @Background
-    protected void startServiceIfShould() {
-        try {
-            ottoBus.post(new ImmediatelyUpdateActionEvent());
-
-            Thread.sleep(1000);
-            if (!serviceIsRunning) {
-                startService(new Intent(this, UpdateService_.class));
-            }
-        } catch (InterruptedException ignored) {
-        }
+        ottoBus.post(new ImmediatelyUpdateActionEvent());
     }
 
     @Override

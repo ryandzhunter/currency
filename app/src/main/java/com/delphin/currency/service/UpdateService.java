@@ -5,9 +5,7 @@ import android.content.Intent;
 import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.otto.OttoBus;
-import com.delphin.currency.otto.events.CheckServiceStatusEvent;
 import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
-import com.delphin.currency.otto.events.ServiceIsRunningEvent;
 import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
 import com.delphin.currency.storage.GlobalCurrencyRepository;
@@ -141,10 +139,5 @@ public class UpdateService extends SpiceService {
     public void onImmediatelyNotificationShowing(ShowNotificationImmediatelyEvent event) {
         if (lastSentInfo != null)
             showNotificationIfShould(lastSentInfo);
-    }
-
-    @Subscribe
-    public void onCheck(CheckServiceStatusEvent event) {
-        ottoBus.post(new ServiceIsRunningEvent());
     }
 }
