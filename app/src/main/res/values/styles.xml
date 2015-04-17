@@ -12,9 +12,13 @@
         <item name="android:gravity">center</item>
     </style>
 
-    <style name="currency" parent="common_text_style">
+    <style name="portrait_currency" parent="common_text_style">
         <item name="android:layout_weight">1</item>
         <item name="android:textSize">36sp</item>
+    </style>
+
+    <style name="landscape_currency" parent="portrait_currency">
+        <item name="android:singleLine">false</item>
     </style>
 
     <style name="notification_text" parent="common_text_style">
@@ -33,15 +37,27 @@
         <item name="android:textColor">@android:color/white</item>
     </style>
 
-    <style name="futher_info" parent="common_text_style">
+    <style name="portrait_futher_info" parent="common_text_style">
         <item name="android:textSize">18sp</item>
         <item name="android:gravity">top|center</item>
         <item name="android:layout_marginBottom">16dip</item>
     </style>
 
-    <style name="row_style">
+    <style name="landscape_futher_info" parent="portrait_futher_info">
+        <item name="android:layout_weight">1</item>
+    </style>
+
+    <style name="portrait_row_style">
         <item name="android:layout_width">match_parent</item>
         <item name="android:layout_height">0dp</item>
+        <item name="android:orientation">vertical</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:layout_marginBottom">8dip</item>
+    </style>
+
+    <style name="landscape_row_style">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">match_parent</item>
         <item name="android:orientation">vertical</item>
         <item name="android:layout_weight">1</item>
         <item name="android:layout_marginBottom">8dip</item>

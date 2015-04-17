@@ -6,44 +6,44 @@
     android:padding="16dip">
 
 
-    <LinearLayout style="@style/row_style">
+    <LinearLayout style="@style/portrait_row_style">
 
         <TextView
             style="@style/currency_caption"
             android:text="@string/usd_course" />
 
         <TextView
-            style="@style/currency"
+            style="@style/portrait_currency"
             android:id="@+id/usd_rub" />
     </LinearLayout>
 
-    <LinearLayout style="@style/row_style">
+    <LinearLayout style="@style/portrait_row_style">
 
         <TextView
             style="@style/currency_caption"
             android:text="@string/eur_course" />
 
         <TextView
-            style="@style/currency"
+            style="@style/portrait_currency"
             android:id="@+id/eur_rub" />
 
         <TextView
-            style="@style/futher_info"
+            style="@style/portrait_futher_info"
             android:id="@+id/eur_usd" />
     </LinearLayout>
 
-    <LinearLayout style="@style/row_style">
+    <LinearLayout style="@style/portrait_row_style">
 
         <TextView
             style="@style/currency_caption"
             android:text="@string/oil_course" />
 
         <TextView
-            style="@style/currency"
+            style="@style/portrait_currency"
             android:id="@+id/oil" />
 
         <TextView
-            style="@style/futher_info"
+            style="@style/portrait_futher_info"
             android:id="@+id/oil_rub" />
     </LinearLayout>
 
