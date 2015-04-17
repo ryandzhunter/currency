@@ -27,10 +27,7 @@ import greendao.GlobalCourses;
 
 @EService
 public class UpdateService extends SpiceService {
-    public static final long EXECUTION_DELAY = 10 * DurationInMillis.ONE_SECOND;
     public static final long EXECUTION_PERIOD = 20 * DurationInMillis.ONE_SECOND;
-
-    private Timer timer;
 
     @Bean
     protected GlobalCurrencyRepository globalCurrencyRepository;
@@ -44,6 +41,7 @@ public class UpdateService extends SpiceService {
     @Bean
     OttoBus ottoBus;
 
+    protected Timer timer;
     protected PairCourse lastSentInfo;
 
     @Override
@@ -71,44 +69,18 @@ public class UpdateService extends SpiceService {
     private TimerTask executionTask = new TimerTask() {
         @Override
         public void run() {
-            getCourse(EXECUTION_DELAY);
+            getCourse();
         }
     };
 
-    private void getCourse(long executionDelay) {
+    private void getCourse() {
         spiceManager.execute(new CurrencyRetrofitRequest(),
-                new Date().toString(), executionDelay, new CurrencyRequestListener());
+                new Date().toString(), DurationInMillis.ALWAYS_EXPIRED, new CurrencyRequestListener());
     }
 
     private void getCourseImmediately() {
         if (lastSentInfo != null)
             sendData(lastSentInfo);
-    }
-
-    private class CurrencyRequestListener implements RequestListener<GlobalCourses> {
-
-        @Override
-        public void onRequestFailure(SpiceException spiceException) {
-            GlobalCourses lastCourse = getLast();
-            if (lastCourse != null) {
-                show(lastCourse);
-            }
-        }
-
-        @Override
-        public void onRequestSuccess(GlobalCourses currencyCourse) {
-            show(currencyCourse);
-            if (currencyCourse.getId() == null) {
-                save(currencyCourse);
-            }
-        }
-
-        private void show(GlobalCourses currencyCourse) {
-            GlobalCourses lastCourse = getLast();
-
-            lastSentInfo = new PairCourse(currencyCourse, lastCourse);
-            sendData(lastSentInfo);
-        }
     }
 
     private void sendData(PairCourse pairCourse) {
@@ -139,5 +111,31 @@ public class UpdateService extends SpiceService {
     public void onImmediatelyNotificationShowing(ShowNotificationImmediatelyEvent event) {
         if (lastSentInfo != null)
             showNotificationIfShould(lastSentInfo);
+    }
+
+    private class CurrencyRequestListener implements RequestListener<GlobalCourses> {
+
+        @Override
+        public void onRequestFailure(SpiceException spiceException) {
+            GlobalCourses lastCourse = getLast();
+            if (lastCourse != null) {
+                show(lastCourse);
+            }
+        }
+
+        @Override
+        public void onRequestSuccess(GlobalCourses currencyCourse) {
+            show(currencyCourse);
+            if (currencyCourse.getId() == null) {
+                save(currencyCourse);
+            }
+        }
+
+        private void show(GlobalCourses currencyCourse) {
+            GlobalCourses lastCourse = getLast();
+
+            lastSentInfo = new PairCourse(currencyCourse, lastCourse);
+            sendData(lastSentInfo);
+        }
     }
 }
