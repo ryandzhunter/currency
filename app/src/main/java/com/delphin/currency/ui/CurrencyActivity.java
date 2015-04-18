@@ -7,6 +7,7 @@ import android.widget.CheckBox;
 import android.widget.TextView;
 
 import com.delphin.currency.R;
+import com.delphin.currency.flurry.FlurrySessionListener;
 import com.delphin.currency.helper.Calculator;
 import com.delphin.currency.helper.ColorHelper;
 import com.delphin.currency.helper.CurrencyFormatter;
@@ -16,13 +17,13 @@ import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
 import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
 import com.delphin.currency.storage.Storage_;
-import com.flurry.android.FlurryAgent;
 import com.squareup.otto.Subscribe;
 
 import org.androidannotations.annotations.AfterViews;
 import org.androidannotations.annotations.Bean;
 import org.androidannotations.annotations.CheckedChange;
 import org.androidannotations.annotations.EActivity;
+import org.androidannotations.annotations.RoboGuice;
 import org.androidannotations.annotations.ViewById;
 import org.androidannotations.annotations.res.StringRes;
 import org.androidannotations.annotations.sharedpreferences.Pref;
@@ -30,6 +31,7 @@ import org.androidannotations.annotations.sharedpreferences.Pref;
 import greendao.GlobalCourses;
 
 @EActivity(R.layout.activity_currency)
+@RoboGuice(value = FlurrySessionListener.class)
 public class CurrencyActivity extends Activity {
     @ViewById(R.id.usd_rub)
     protected TextView usdRub;
@@ -72,9 +74,6 @@ public class CurrencyActivity extends Activity {
 
     @StringRes(R.string.format_eur_to_usd)
     protected String formatEurToUsd;
-
-    @StringRes(R.string.flurry_api_key)
-    String flurryApiKey;
 
     protected Typeface roubleTypeface;
 
@@ -170,17 +169,5 @@ public class CurrencyActivity extends Activity {
                 textView.setTypeface(roubleTypeface);
             }
         }
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        FlurryAgent.onEndSession(this);
-    }
-
-    @Override
-    protected void onStart() {
-        FlurryAgent.onStartSession(this, flurryApiKey);
-        super.onStart();
     }
 }
