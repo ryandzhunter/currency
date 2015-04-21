@@ -7,4 +7,5 @@
 
     <string name="currency_with_diff">%1$s (%2$s)</string>
     <string name="format_eur_to_usd">EUR/USD: %1$s</string>
+    <string name="daily_diff">Изменение за день</string>
 </resources>

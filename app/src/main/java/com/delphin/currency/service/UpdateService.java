@@ -6,6 +6,7 @@ import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
+import com.delphin.currency.otto.events.RefreshActionEvent;
 import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
 import com.delphin.currency.retrofit.network.CurrencyRetrofitRequest;
 import com.delphin.currency.storage.GlobalCurrencyRepository;
@@ -42,7 +43,6 @@ public class UpdateService extends SpiceService {
     OttoBus ottoBus;
 
     protected Timer timer;
-    protected PairCourse lastSentInfo;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -79,8 +79,16 @@ public class UpdateService extends SpiceService {
     }
 
     private void getCourseImmediately() {
-        if (lastSentInfo != null)
-            sendData(lastSentInfo);
+        sendData(lastPair());
+    }
+
+    private PairCourse lastPair() {
+        GlobalCourses last = getLast();
+        return new PairCourse(last, getPrevious(last));
+    }
+
+    private GlobalCourses getPrevious(GlobalCourses last) {
+        return globalCurrencyRepository.getPrevious(last);
     }
 
     private void sendData(PairCourse pairCourse) {
@@ -99,7 +107,10 @@ public class UpdateService extends SpiceService {
     }
 
     private GlobalCourses getLast() {
-        return globalCurrencyRepository.getLastInserted();
+        Boolean dailyDifferenceActive = storage.dailyDifferenceActive().get();
+        if (dailyDifferenceActive) {
+            return globalCurrencyRepository.getFirstTodayCourse();
+        } else return globalCurrencyRepository.getLastInserted();
     }
 
     @Subscribe
@@ -108,9 +119,13 @@ public class UpdateService extends SpiceService {
     }
 
     @Subscribe
+    public void onRefreshCalling(RefreshActionEvent event) {
+        getCourse();
+    }
+
+    @Subscribe
     public void onImmediatelyNotificationShowing(ShowNotificationImmediatelyEvent event) {
-        if (lastSentInfo != null)
-            showNotificationIfShould(lastSentInfo);
+        showNotificationIfShould(lastPair());
     }
 
     private class CurrencyRequestListener implements RequestListener<GlobalCourses> {
@@ -134,8 +149,7 @@ public class UpdateService extends SpiceService {
         private void show(GlobalCourses currencyCourse) {
             GlobalCourses lastCourse = getLast();
 
-            lastSentInfo = new PairCourse(currencyCourse, lastCourse);
-            sendData(lastSentInfo);
+            sendData(new PairCourse(currencyCourse, lastCourse));
         }
     }
 }

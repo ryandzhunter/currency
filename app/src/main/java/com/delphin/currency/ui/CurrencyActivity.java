@@ -15,6 +15,7 @@ import com.delphin.currency.model.PairCourse;
 import com.delphin.currency.notification.CurrencyNotificationManager;
 import com.delphin.currency.otto.OttoBus;
 import com.delphin.currency.otto.events.ImmediatelyUpdateActionEvent;
+import com.delphin.currency.otto.events.RefreshActionEvent;
 import com.delphin.currency.otto.events.ShowNotificationImmediatelyEvent;
 import com.delphin.currency.storage.Storage_;
 import com.squareup.otto.Subscribe;
@@ -44,6 +45,9 @@ public class CurrencyActivity extends Activity {
 
     @ViewById(R.id.notification_visibility)
     protected CheckBox notificationVisibility;
+
+    @ViewById(R.id.daily_diff)
+    protected CheckBox dailyDifference;
 
     @ViewById(R.id.eur_usd)
     protected TextView eurUsd;
@@ -87,6 +91,10 @@ public class CurrencyActivity extends Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        getInfo();
+    }
+
+    private void getInfo() {
         ottoBus.post(new ImmediatelyUpdateActionEvent());
     }
 
@@ -101,6 +109,7 @@ public class CurrencyActivity extends Activity {
         setRoubleTypeface(usdRub, eurRub, oilRub);
 
         notificationVisibility.setChecked(storage.notificationVisibility().get());
+        dailyDifference.setChecked(storage.dailyDifferenceActive().get());
     }
 
     @Subscribe
@@ -161,6 +170,16 @@ public class CurrencyActivity extends Activity {
         if (!isChecked) {
             notificationManager.cancelNotification();
         } else ottoBus.post(new ShowNotificationImmediatelyEvent());
+    }
+
+    @CheckedChange(R.id.daily_diff)
+    void onDailyDiffChanged(boolean isChecked) {
+        storage.dailyDifferenceActive().put(isChecked);
+        refresh();
+    }
+
+    private void refresh() {
+        ottoBus.post(new RefreshActionEvent());
     }
 
     private void setRoubleTypeface(TextView... views) {
