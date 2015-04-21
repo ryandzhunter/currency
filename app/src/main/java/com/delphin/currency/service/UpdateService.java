@@ -79,7 +79,10 @@ public class UpdateService extends SpiceService {
     }
 
     private void getCourseImmediately() {
-        sendData(lastPair());
+        PairCourse pairCourse = lastPair();
+        if (pairCourse.current != null) {
+            sendData(pairCourse);
+        } else getCourse();
     }
 
     private PairCourse lastPair() {
@@ -147,9 +150,7 @@ public class UpdateService extends SpiceService {
         }
 
         private void show(GlobalCourses currencyCourse) {
-            GlobalCourses lastCourse = getLast();
-
-            sendData(new PairCourse(currencyCourse, lastCourse));
+            sendData(new PairCourse(currencyCourse, getPrevious(currencyCourse)));
         }
     }
 }
