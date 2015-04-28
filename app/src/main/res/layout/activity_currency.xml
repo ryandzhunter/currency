@@ -53,9 +53,5 @@
         android:layout_height="wrap_content"
         android:text="@string/notification_visibility" />
 
-    <CheckBox
-        android:id="@+id/daily_diff"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/daily_diff"/>
+    <CheckBox style="@style/daily_diff_check_box" />
 </LinearLayout>

@@ -63,4 +63,11 @@
         <item name="android:layout_marginBottom">8dip</item>
     </style>
 
+    <style name="daily_diff_check_box">
+        <item name="android:id">@id/daily_diff</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:text">@string/daily_diff</item>
+        <item name="android:visibility">gone</item>
+    </style>
 </resources>
