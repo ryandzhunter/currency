@@ -1,57 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="16dip">
+    android:layout_height="match_parent">
 
-
-    <LinearLayout style="@style/portrait_row_style">
-
-        <TextView
-            style="@style/currency_caption"
-            android:text="@string/usd_course" />
-
-        <TextView
-            style="@style/portrait_currency"
-            android:id="@+id/usd_rub" />
-    </LinearLayout>
-
-    <LinearLayout style="@style/portrait_row_style">
-
-        <TextView
-            style="@style/currency_caption"
-            android:text="@string/eur_course" />
-
-        <TextView
-            style="@style/portrait_currency"
-            android:id="@+id/eur_rub" />
-
-        <TextView
-            style="@style/portrait_futher_info"
-            android:id="@+id/eur_usd" />
-    </LinearLayout>
-
-    <LinearLayout style="@style/portrait_row_style">
-
-        <TextView
-            style="@style/currency_caption"
-            android:text="@string/oil_course" />
-
-        <TextView
-            style="@style/portrait_currency"
-            android:id="@+id/oil" />
-
-        <TextView
-            style="@style/portrait_futher_info"
-            android:id="@+id/oil_rub" />
-    </LinearLayout>
-
-    <CheckBox
-        android:id="@+id/notification_visibility"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/notification_visibility" />
+        android:orientation="vertical"
+        android:padding="16dip">
 
-    <CheckBox style="@style/daily_diff_check_box" />
-</LinearLayout>
+        <LinearLayout style="@style/portrait_row_style">
+
+            <TextView
+                style="@style/currency_caption"
+                android:text="@string/usd_course" />
+
+            <TextView
+                style="@style/portrait_currency"
+                android:id="@+id/usd_rub" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/portrait_row_style">
+
+            <TextView
+                style="@style/currency_caption"
+                android:text="@string/eur_course" />
+
+            <TextView
+                style="@style/portrait_currency"
+                android:id="@+id/eur_rub" />
+
+            <TextView
+                style="@style/portrait_futher_info"
+                android:id="@+id/eur_usd" />
+        </LinearLayout>
+
+        <LinearLayout style="@style/portrait_row_style">
+
+            <TextView
+                style="@style/currency_caption"
+                android:text="@string/oil_course" />
+
+            <TextView
+                style="@style/portrait_currency"
+                android:id="@+id/oil" />
+
+            <TextView
+                style="@style/portrait_futher_info"
+                android:id="@+id/oil_rub" />
+        </LinearLayout>
+
+        <CheckBox style="@style/notification_visibility_check_box" />
+
+        <CheckBox style="@style/daily_diff_check_box" />
+    </LinearLayout>
+</ScrollView>

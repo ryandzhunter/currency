@@ -70,11 +70,7 @@
             android:id="@+id/oil_rub" />
     </LinearLayout>
 
-    <CheckBox
-        android:id="@+id/notification_visibility"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="@string/notification_visibility" />
+    <CheckBox style="@style/notification_visibility_check_box" />
 
-    <CheckBox style="@style/daily_diff_check_box"/>
+    <CheckBox style="@style/daily_diff_check_box" />
 </LinearLayout>

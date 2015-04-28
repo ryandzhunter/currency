@@ -6,3 +6,4 @@
 *.iml
 /app/src/main/java-gen
 *.class
+/MyDaoGenerator/build

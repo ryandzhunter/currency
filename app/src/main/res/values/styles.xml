@@ -15,6 +15,7 @@
     <style name="portrait_currency" parent="common_text_style">
         <item name="android:layout_weight">1</item>
         <item name="android:textSize">36sp</item>
+        <item name="android:maxLines">2</item>
     </style>
 
     <style name="landscape_currency" parent="portrait_currency">
@@ -69,5 +70,12 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:text">@string/daily_diff</item>
         <item name="android:visibility">gone</item>
+    </style>
+
+    <style name="notification_visibility_check_box">
+        <item name="android:id">@id/notification_visibility</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:text">@string/notification_visibility</item>
     </style>
 </resources>
